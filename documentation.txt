@@ -1,0 +1,57 @@
+## Documentation du projet
+
+### Présentation
+
+Ce petit projet Python met en place un **agent autonome** basé sur le modèle LLM de Groq (`gpt‑oss‑120b`).
+L'agent reçoit un objectif exprimé par l'utilisateur, échange avec le modèle et, grâce à la fonctionnalité *tools* d'OpenAI, peut appeler automatiquement des fonctions Python définies dans `outils.py` :
+- `lire_fichier(chemin)` : lit le contenu d'un fichier texte.
+- `ecrire_fichier(chemin, contenu)` : crée ou écrase un fichier avec le texte fourni.
+- `lister_fichiers(dossier)` : renvoie la liste des fichiers du répertoire spécifié (par défaut le répertoire courant).
+
+Ces fonctions sont exposées via le dictionnaire `OUTILS_DISPONIBLES` et sont décrites dans le schéma `TOOLS_SCHEMA` (voir `tools_schema.py`).
+
+### Architecture
+
+- **`outils.py`** : implémente les trois fonctions utilitaires et les regroupe dans `OUTILS_DISPONIBLES`.
+- **`main.py`** : 
+  1. Charge la clé d'API Groq depuis le fichier `.env`.
+  2. Initialise le client Groq.
+  3. Définit une boucle d'exécution (`MAX_ITERATIONS = 10`).
+  4. Envoie le texte de l'utilisateur comme premier message au modèle.
+  5. Après chaque réponse, le script:
+     - Affiche le texte renvoyé par le modèle.
+     - Vérifie la présence d'`tool_calls`.
+     - Exécute le(s) appel(s) d'outil demandé(s) via `executer_outil`.
+     - Pour `ecrire_fichier`, demande une confirmation à l'utilisateur avant d'écrire.
+     - Retourne le résultat de l'outil au modèle sous forme de message de rôle `tool`.
+  6. La boucle s'arrête quand le modèle ne propose plus d'outil ou que le nombre maximal d'itérations est atteint.
+
+### Utilisation
+
+1. **Installation** (assurez‑vous d'avoir Python ≥3.8) :
+   ```bash
+   pip install -r requirements.txt   # (groq, python‑dotenv, etc.)
+   ```
+2. **Configuration** : créez un fichier `.env` contenant votre clé API :
+   ```
+   GROQ_API_KEY=sk-xxxxxxxxxxxxxxxxxxxx
+   ```
+3. **Lancer l'agent** :
+   ```bash
+   python main.py
+   ```
+   Vous serez invité à entrer un objectif, par exemple :
+   - "Lister les fichiers du répertoire courant."
+   - "Lire le contenu du fichier `bonjour.txt` et le copier dans `copy.txt`."
+   - "Quel est le nombre de lignes du fichier `test.txt` ?"
+4. L'agent affichera ses réponses et, le cas échéant, exécutera les fonctions. Pour les écritures, il vous demandera confirmation.
+
+### Extension
+
+- **Ajout de nouveaux outils** : créez une fonction dans `outils.py`, ajoutez‑la à `OUTILS_DISPONIBLES` et mettez à jour le schéma dans `tools_schema.py`.
+- **Modification du modèle** : changez le paramètre `model` dans `client.chat.completions.create`.
+- **Gestion du contexte** : augmentez `MAX_ITERATIONS` ou modifiez la logique de boucle pour un usage plus long.
+
+---
+
+Ce projet montre comment combiner un LLM avec des capacités d'exécution de code contrôlé, offrant ainsi un assistant capable de manipuler le système de fichiers de façon sûre et interactive.
