@@ -60,6 +60,29 @@ def resumer_memoire() -> str:
         return f"La mémoire contient {len(lignes)} entrées. Contenu complet :\n{contenu}"
     except FileNotFoundError:
         return "Aucune mémoire enregistrée pour l'instant."
+def condenser_memoire_si_necessaire(client, seuil=30):
+    try:
+        with open("memoire.txt", "r", encoding="utf-8") as f:
+            lignes = [l for l in f.read().split("\n") if l.strip()]
+        
+        if len(lignes) < seuil:
+            return
+        
+        contenu = "\n".join(lignes)
+        reponse = client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            messages=[{
+                "role": "user",
+                "content": f"Condense ces informations mémorisées sur un utilisateur en gardant les catégories [etudes], [preferences], [taches], [general], en éliminant les doublons et redondances, réponse uniquement le texte condensé sans commentaire :\n\n{contenu}"
+            }],
+            max_tokens=1024
+        )
+        
+        resume = reponse.choices[0].message.content
+        with open("memoire.txt", "w", encoding="utf-8") as f:
+            f.write(resume)
+    except Exception:
+        pass
 def rechercher_web(requete: str) -> str:
     try:
         resultats = tavily_client.search(requete, max_results=3)
