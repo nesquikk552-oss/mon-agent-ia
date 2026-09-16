@@ -165,5 +165,58 @@ TOOLS_SCHEMA = [
                 "required": []
             }
         }
+    },
+{
+        "type": "function",
+        "function": {
+            "name": "creer_skill",
+            "description": "Crée un nouveau mode de comportement (skill) personnalisé",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "nom": {"type": "string"},
+                    "contenu": {"type": "string"},
+                    "description": {"type": "string"}
+                },
+                "required": ["nom", "contenu", "description"]
+            }
+        }
+    },{
+        "type": "function",
+        "function": {
+            "name": "lire_pdf",
+            "description": "Lit le contenu d'un fichier PDF",
+            "parameters": {
+                "type": "object",
+                "properties": {"chemin": {"type": "string"}},
+                "required": ["chemin"]
+            }
+        }
+    },{
+        "type": "function",
+        "function": {
+            "name": "suivre_progression",
+            "description": "Enregistre l'avancement de révision d'une matière",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "matiere": {"type": "string"},
+                    "statut": {"type": "string"}
+                },
+                "required": ["matiere", "statut"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "voir_progression",
+            "description": "Affiche l'historique de progression des révisions",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
     }
 ]

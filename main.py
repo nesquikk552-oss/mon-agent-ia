@@ -33,7 +33,7 @@ def enregistrer_erreur(nom_outil, params, message):
     except Exception:
         pass
 
-def executer_outil(nom, params):
+def executer_outil(nom, params, tentative=1):
     fonction = OUTILS_DISPONIBLES.get(nom)
     if not fonction:
         message = f"Outil inconnu : {nom}"
@@ -41,6 +41,12 @@ def executer_outil(nom, params):
         return message
     try:
         return fonction(**params)
+    except (ConnectionError, TimeoutError) as e:
+        if tentative < 2:
+            return executer_outil(nom, params, tentative + 1)
+        message = f"Erreur réseau persistante lors de l'exécution de {nom} : {e}"
+        enregistrer_erreur(nom, params, message)
+        return message
     except Exception as e:
         message = f"Erreur lors de l'exécution de {nom} : {e}"
         enregistrer_erreur(nom, params, message)

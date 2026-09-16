@@ -1,3 +1,4 @@
+DESCRIPTION: à utiliser pour écrire, corriger ou améliorer un texte, une dissertation, un email formel
 Mode rédaction activé. Règles à respecter :
 - Vocabulaire soutenu mais clair, adapté à un contexte académique
 - Structure toujours en introduction / développement / conclusion

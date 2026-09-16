@@ -3,9 +3,35 @@ import os
 from main import lancer_agent, client
 
 st.title("Christiane - Assistant IA")
+import os
+
+if "authentifie" not in st.session_state:
+    st.session_state.authentifie = False
+
+if not st.session_state.authentifie:
+    mot_de_passe_saisi = st.text_input("Mot de passe", type="password")
+    if st.button("Se connecter"):
+        if mot_de_passe_saisi == os.getenv("INTERFACE_MOT_DE_PASSE"):
+            st.session_state.authentifie = True
+            st.rerun()
+        else:
+            st.error("Mot de passe incorrect")
+    st.stop()
+import json
+
+def charger_historique():
+    try:
+        with open("historique.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+def sauvegarder_historique(historique):
+    with open("historique.json", "w", encoding="utf-8") as f:
+        json.dump(historique, f, ensure_ascii=False, indent=2)
 
 if "historique" not in st.session_state:
-    st.session_state.historique = []
+    st.session_state.historique = charger_historique()
 
 skills_disponibles = []
 if os.path.exists("skills"):
@@ -39,6 +65,11 @@ def detecter_skill(objectif_utilisateur):
         return ""
 
 autoriser_actions = st.checkbox("Autoriser les actions sensibles (écriture de fichiers, envoi d'emails)")
+fichier_uploade = st.file_uploader("Ou dépose un PDF à analyser", type="pdf")
+if fichier_uploade:
+    with open(f"upload_{fichier_uploade.name}", "wb") as f:
+        f.write(fichier_uploade.getbuffer())
+    st.success(f"Fichier {fichier_uploade.name} prêt. Demande à Christiane de le lire avec lire_pdf.")
 question = st.text_input("Que dois-je faire ?")
 
 if st.button("Envoyer") and question:
@@ -59,7 +90,7 @@ if st.button("Envoyer") and question:
         "journal": resultat["journal"],
         "skill": skill_choisi or "aucun"
     })
-
+sauvegarder_historique(st.session_state.historique)
 for echange in reversed(st.session_state.historique):
     st.write(f"**Toi :** {echange['question']}")
     st.write(f"**Christiane** *(mode: {echange['skill']})* : {echange['reponse']}")

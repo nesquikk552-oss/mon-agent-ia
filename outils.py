@@ -103,6 +103,11 @@ def convertir_unite(valeur: float, de_unite: str, vers_unite: str) -> str:
         ("km", "m"): 1000, ("m", "km"): 0.001,
         ("m", "cm"): 100, ("cm", "m"): 0.01,
         ("kg", "g"): 1000, ("g", "kg"): 0.001,
+        ("l", "ml"): 1000, ("ml", "l"): 0.001,
+        ("h", "min"): 60, ("min", "h"): 1/60,
+        ("min", "s"): 60, ("s", "min"): 1/60,
+        ("km", "mile"): 0.621371, ("mile", "km"): 1.60934,
+        ("kg", "lb"): 2.20462, ("lb", "kg"): 0.453592,
     }
     if de_unite == "celsius" and vers_unite == "fahrenheit":
         return str(valeur * 9/5 + 32)
@@ -134,18 +139,55 @@ def envoyer_email(destinataire: str, sujet: str, message: str) -> str:
         expediteur = os.getenv("EMAIL_ADRESSE")
         mot_de_passe = os.getenv("EMAIL_MOT_DE_PASSE")
 
+        destinataires = [d.strip() for d in destinataire.split(",")]
+
         mail = MIMEText(message)
         mail["Subject"] = sujet
         mail["From"] = expediteur
-        mail["To"] = destinataire
+        mail["To"] = ", ".join(destinataires)
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as serveur:
             serveur.login(expediteur, mot_de_passe)
-            serveur.sendmail(expediteur, destinataire, mail.as_string())
+            serveur.sendmail(expediteur, destinataires, mail.as_string())
 
-        return f"Email envoyé à {destinataire}."
+        return f"Email envoyé à {', '.join(destinataires)}."
     except Exception as e:
         return f"Erreur : {e}"
+def creer_skill(nom: str, contenu: str, description: str) -> str:
+    try:
+        import os
+        if not os.path.exists("skills"):
+            os.makedirs("skills")
+        with open(f"skills/{nom}.txt", "w", encoding="utf-8") as f:
+            f.write(f"DESCRIPTION: {description}\n{contenu}")
+        return f"Skill '{nom}' créé avec succès."
+    except Exception as e:
+        return f"Erreur : {e}"
+def lire_pdf(chemin: str) -> str:
+    try:
+        from pypdf import PdfReader
+        reader = PdfReader(chemin)
+        texte = ""
+        for page in reader.pages:
+            texte += page.extract_text() + "\n"
+        return texte[:5000] if len(texte) > 5000 else texte
+    except Exception as e:
+        return f"Erreur : {e}"
+def suivre_progression(matiere: str, statut: str) -> str:
+    try:
+        ligne = f"[{matiere}] {statut} - {datetime.now().strftime('%Y-%m-%d')}\n"
+        with open("progression.txt", "a", encoding="utf-8") as f:
+            f.write(ligne)
+        return "Progression enregistrée."
+    except Exception as e:
+        return f"Erreur : {e}"
+
+def voir_progression() -> str:
+    try:
+        with open("progression.txt", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return "Aucune progression enregistrée."
 OUTILS_DISPONIBLES ={
     "lire_fichier": lire_fichier,
     "ecrire_fichier": ecrire_fichier,
@@ -159,5 +201,9 @@ OUTILS_DISPONIBLES ={
     "compter_mots": compter_mots,
     "obtenir_meteo": obtenir_meteo,
     "envoyer_email": envoyer_email,
-    "resumer_memoire": resumer_memoire
+    "resumer_memoire": resumer_memoire,
+    "creer_skill": creer_skill,
+    "lire_pdf": lire_pdf,
+    "suivre_progression": suivre_progression,
+    "voir_progression": voir_progression,
 }
