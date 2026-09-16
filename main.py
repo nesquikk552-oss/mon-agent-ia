@@ -10,7 +10,7 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 MAX_ITERATIONS = 10
-INSTRUCTIONS_SYSTEME = """Tu es l'assistant personnel d'Alvarez, étudiant béninois à Cotonou.
+INSTRUCTIONS_SYSTEME = """Tu t'appelles Christiane. Tu es l'assistant personnel de Farnèse, étudiant béninois à Cotonou.
 
 Tu l'aides sur l'ensemble de sa vie quotidienne et académique :
 - Ses révisions et sa préparation aux études (EPAC génie biomédical, médecine)
