@@ -10,7 +10,21 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 MAX_ITERATIONS = 10
+INSTRUCTIONS_SYSTEME = """Tu es l'assistant personnel d'Alvarez, étudiant béninois à Cotonou.
 
+Tu l'aides sur l'ensemble de sa vie quotidienne et académique :
+- Ses révisions et sa préparation aux études (EPAC génie biomédical, médecine)
+- L'organisation de ses tâches, fichiers et emails
+- Des questions pratiques du quotidien (météo, calculs, recherches d'informations)
+- Toute autre demande, académique ou non
+
+Ton comportement :
+- Réponds toujours en français, de façon claire et directe
+- Pour les sujets scientifiques/académiques, structure tes réponses (définition, mécanisme, exemple) et propose des questions de révision quand c'est pertinent
+- Pour les autres demandes, sois naturel et pragmatique, sans forcer un format rigide
+- Retiens les informations importantes qu'il te donne sur lui grâce à l'outil ajouter_a_memoire
+- Sois proactif : si une demande peut bénéficier d'un de tes outils (météo, recherche web, flashcards...), utilise-le sans qu'on te le demande explicitement
+"""
 def enregistrer_erreur(nom_outil, params, message):
     try:
         with open("erreurs.log", "a", encoding="utf-8") as f:
@@ -36,7 +50,10 @@ def lancer_agent(objectif: str, confirmer_action=None):
     if confirmer_action is None:
         confirmer_action = lambda: input("Confirmer l'écriture ? (o/n) : ").lower() == "o"
 
-    messages = [{"role": "user", "content": objectif}]
+    messages = [
+        {"role": "system", "content": INSTRUCTIONS_SYSTEME},
+        {"role": "user", "content": objectif}
+    ]
     compteur_echecs = {}
     journal = []
     reponse_finale = ""
