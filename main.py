@@ -112,14 +112,31 @@ if __name__ == "__main__":
             memoire = f.read()
     except FileNotFoundError:
         memoire = "Aucune information mémorisée pour l'instant."
+import os as os_module
+skills_disponibles = []
+if os_module.path.exists("skills"):
+        skills_disponibles = [f.replace(".txt", "") for f in os_module.listdir("skills") if f.endswith(".txt")]
 
-    objectif = input("Que dois-je faire ? ")
-    objectif_complet = (
+print(f"Skills disponibles : {', '.join(skills_disponibles) if skills_disponibles else 'aucun'}")
+skill_choisi = input("Quel skill utiliser (laisse vide pour aucun) ? ")
+
+instructions_skill = ""
+if skill_choisi and skill_choisi in skills_disponibles:
+        try:
+            with open(f"skills/{skill_choisi}.txt", "r", encoding="utf-8") as f:
+                instructions_skill = f.read()
+        except FileNotFoundError:
+            instructions_skill = ""
+objectif = input("Que dois-je faire ? ")
+objectif_complet = (
+        f"{instructions_skill}\n\n"
         f"Voici ce que tu sais déjà sur moi :\n{memoire}\n\n"
         f"Si je te donne une nouvelle information importante sur moi pendant cette conversation "
-        f"(mes études, mes préférences, mes projets...), utilise l'outil ajouter_a_memoire pour la sauvegarder.\n\n"
+       f"utilise l'outil ajouter_a_memoire pour la sauvegarder, en choisissant la catégorie la plus adaptée "
+        f"(etudes, preferences, taches, ou general). Si l'utilisateur demande ce que tu sais sur lui, "
+        f"utilise l'outil resumer_memoire.\n\n"
         f"Ma demande : {objectif}"
     )
 
-    resultat = lancer_agent(objectif_complet)
-    print(resultat["reponse"])
+resultat = lancer_agent(objectif_complet)
+print(resultat["reponse"])

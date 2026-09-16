@@ -32,16 +32,34 @@ def calculer(expression: str) -> str:
         return str(resultat)
     except Exception as e:
         return f"Erreur de calcul : {e}"
-def ajouter_a_memoire(information: str) -> str:
+def ajouter_a_memoire(information: str, categorie: str = "general") -> str:
     try:
+        ligne = f"[{categorie}] {information}"
+        
+        # Vérifier si l'info existe déjà (évite les doublons)
+        try:
+            with open("memoire.txt", "r", encoding="utf-8") as f:
+                contenu_existant = f.read()
+            if information.strip() in contenu_existant:
+                return "Cette information est déjà mémorisée."
+        except FileNotFoundError:
+            pass
+        
         with open("memoire.txt", "a", encoding="utf-8") as f:
-            f.write(information + "\n")
+            f.write(ligne + "\n")
         return "Information mémorisée avec succès."
     except Exception as e:
         return f"Erreur : {e}"
-    from tavily import TavilyClient
-tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
-
+def resumer_memoire() -> str:
+    try:
+        with open("memoire.txt", "r", encoding="utf-8") as f:
+            contenu = f.read()
+        lignes = [l for l in contenu.split("\n") if l.strip()]
+        if len(lignes) < 20:
+            return f"La mémoire contient {len(lignes)} entrées, pas besoin de résumé pour l'instant."
+        return f"La mémoire contient {len(lignes)} entrées. Contenu complet :\n{contenu}"
+    except FileNotFoundError:
+        return "Aucune mémoire enregistrée pour l'instant."
 def rechercher_web(requete: str) -> str:
     try:
         resultats = tavily_client.search(requete, max_results=3)
@@ -118,4 +136,5 @@ OUTILS_DISPONIBLES ={
     "compter_mots": compter_mots,
     "obtenir_meteo": obtenir_meteo,
     "envoyer_email": envoyer_email,
+    "resumer_memoire": resumer_memoire
 }

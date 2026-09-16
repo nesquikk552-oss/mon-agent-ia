@@ -52,10 +52,16 @@ TOOLS_SCHEMA = [
         "type": "function",
         "function": {
             "name": "ajouter_a_memoire",
-            "description": "Sauvegarde une information importante sur l'utilisateur pour s'en souvenir plus tard",
+            "description": "Sauvegarde une information importante sur l'utilisateur, classée par catégorie",
             "parameters": {
                 "type": "object",
-                "properties": {"information": {"type": "string"}},
+                "properties": {
+                    "information": {"type": "string"},
+                    "categorie": {
+                        "type": "string",
+                        "description": "Catégorie de l'information : etudes, preferences, taches, ou general"
+                    }
+                },
                 "required": ["information"]
             }
         }
@@ -145,6 +151,18 @@ TOOLS_SCHEMA = [
                     "message": {"type": "string"}
                 },
                 "required": ["destinataire", "sujet", "message"]
+            }
+        }
+    },
+{
+        "type": "function",
+        "function": {
+            "name": "resumer_memoire",
+            "description": "Affiche un résumé de tout ce qui est mémorisé sur l'utilisateur",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
             }
         }
     }
