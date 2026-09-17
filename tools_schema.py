@@ -218,5 +218,17 @@ TOOLS_SCHEMA = [
                 "required": []
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "exporter_donnees",
+            "description": "Crée une sauvegarde de toutes les données importantes (mémoire, progression, flashcards)",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
     }
 ]

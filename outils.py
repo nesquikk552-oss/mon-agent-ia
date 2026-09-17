@@ -188,6 +188,24 @@ def voir_progression() -> str:
             return f.read()
     except FileNotFoundError:
         return "Aucune progression enregistrée."
+def exporter_donnees() -> str:
+    try:
+        import json
+        donnees = {}
+        
+        for nom_fichier in ["memoire.txt", "progression.txt", "flashcards.txt"]:
+            try:
+                with open(nom_fichier, "r", encoding="utf-8") as f:
+                    donnees[nom_fichier] = f.read()
+            except FileNotFoundError:
+                donnees[nom_fichier] = ""
+        
+        with open("export_complet.json", "w", encoding="utf-8") as f:
+            json.dump(donnees, f, ensure_ascii=False, indent=2)
+        
+        return "Export créé : export_complet.json. Utilise lire_fichier pour le consulter, ou demande-moi de te l'envoyer par email."
+    except Exception as e:
+        return f"Erreur : {e}"
 OUTILS_DISPONIBLES ={
     "lire_fichier": lire_fichier,
     "ecrire_fichier": ecrire_fichier,
@@ -206,4 +224,5 @@ OUTILS_DISPONIBLES ={
     "lire_pdf": lire_pdf,
     "suivre_progression": suivre_progression,
     "voir_progression": voir_progression,
+    "exporter_donnees": exporter_donnees,
 }
