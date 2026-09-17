@@ -4,6 +4,7 @@ import requests
 import os
 from datetime import datetime
 from tavily import TavilyClient
+from groq import Groq
 tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 def lire_fichier(chemin: str) -> str:
     from datetime import datetime
@@ -206,6 +207,72 @@ def exporter_donnees() -> str:
         return "Export créé : export_complet.json. Utilise lire_fichier pour le consulter, ou demande-moi de te l'envoyer par email."
     except Exception as e:
         return f"Erreur : {e}"
+def planifier_revisions(sujets: str, date_examen: str) -> str:
+    try:
+        from datetime import datetime
+        
+        liste_sujets = [s.strip() for s in sujets.split(",") if s.strip()]
+        date_cible = datetime.strptime(date_examen, "%Y-%m-%d")
+        aujourdhui = datetime.now()
+        jours_restants = (date_cible - aujourdhui).days
+        
+        if jours_restants <= 0:
+            return "La date d'examen est déjà passée ou c'est aujourd'hui."
+        
+        if not liste_sujets:
+            return "Aucun sujet fourni."
+        
+        planning = {}
+        for i in range(jours_restants):
+            jour = aujourdhui.replace(hour=0, minute=0, second=0, microsecond=0)
+            jour = jour.fromtimestamp(jour.timestamp() + i * 86400)
+            sujet_du_jour = liste_sujets[i % len(liste_sujets)]
+            planning[jour.strftime("%Y-%m-%d")] = sujet_du_jour
+        
+        texte_planning = f"Planning de révision jusqu'au {date_examen} ({jours_restants} jours) :\n"
+        for jour, sujet in planning.items():
+            texte_planning += f"- {jour} : {sujet}\n"
+        
+        with open("planning_revisions.txt", "w", encoding="utf-8") as f:
+            f.write(texte_planning)
+        
+        return texte_planning
+    except ValueError:
+        return "Format de date incorrect. Utilise le format AAAA-MM-JJ (ex: 2026-11-15)."
+    except Exception as e:
+        return f"Erreur : {e}"
+def generer_qcm(texte: str, nombre_questions: int = 5) -> str:
+    try:
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        
+        prompt = f"""À partir du texte suivant, crée {nombre_questions} questions à choix multiples (QCM) 
+pour réviser. Chaque question doit avoir 4 propositions (A, B, C, D) et indiquer la bonne réponse.
+
+Texte :
+{texte}
+
+Format de réponse :
+Question 1 : ...
+A) ...
+B) ...
+C) ...
+D) ...
+Bonne réponse : ...
+"""
+        
+        reponse = client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        
+        resultat = reponse.choices[0].message.content
+        
+        with open("qcm_genere.txt", "w", encoding="utf-8") as f:
+            f.write(resultat)
+        
+        return resultat
+    except Exception as e:
+        return f"Erreur : {e}"
 OUTILS_DISPONIBLES ={
     "lire_fichier": lire_fichier,
     "ecrire_fichier": ecrire_fichier,
@@ -225,4 +292,6 @@ OUTILS_DISPONIBLES ={
     "suivre_progression": suivre_progression,
     "voir_progression": voir_progression,
     "exporter_donnees": exporter_donnees,
+    "planifier_revision": planifier_revisions,
+    "generer_qcm": generer_qcm,
 }

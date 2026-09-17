@@ -230,5 +230,19 @@ TOOLS_SCHEMA = [
                 "required": []
             }
         }
+    },{
+        "type": "function",
+        "function": {
+            "name": "planifier_revisions",
+            "description": "Crée un planning de révision réparti jusqu'à une date d'examen donnée",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "sujets": {"type": "string", "description": "Liste des sujets séparés par des virgules"},
+                    "date_examen": {"type": "string", "description": "Date de l'examen au format AAAA-MM-JJ"}
+                },
+                "required": ["sujets", "date_examen"]
+            }
+        }
     }
 ]
