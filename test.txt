@@ -1,1 +1,75 @@
 Premier test
+(env) PS C:\Users\DELL\OneDrive\Documents\Mon agent> python main.py
+Que dois-je faire ? Salut Christiane
+Salut Farnèse ! Comment se passe ta préparation pour le concours EPAC en génie biomédical ? N’hésite pas à me dire ce dont tu as besoin aujourd’hui, que ce soit des révisions, de l’organisation ou tout autre sujet.
+(env) PS C:\Users\DELL\OneDrive\Documents\Mon agent> python main.py
+Que dois-je faire ? Dorenavant appelle moi monsieur
+Bien reçu, monsieur ! Je garderai cela en mémoire pour toutes nos prochaines interactions.
+(env) PS C:\Users\DELL\OneDrive\Documents\Mon agent>  python main.py
+Que dois-je faire ? Ne me demande plus Comment se passe ma préparation pour le concours EPAC en génie biomédical et varie tes réponses quand je te salut 
+C’est noté, monsieur ! Je ne vous demanderai plus comment se passe votre préparation pour le concours EPAC en génie biomédical et je varierai mes réponses chaque fois que vous me saluerez. N’hésitez pas si vous avez besoin de quoi que ce soit d’autre.
+(env) PS C:\Users\DELL\OneDrive\Documents\Mon agent> python main.py
+Que dois-je faire ? Avant d'exécuter n'importe lequel de mes ordres et de mes demandes ,tu répondra "Bien monsieur"ou"ok Farnèse"ou par une quelconque réponse affirmative
+Bien monsieur, je prends bien note de votre consigne.
+(env) PS C:\Users\DELL\OneDrive\Documents\Mon agent> python main.py
+Que dois-je faire ? Tu es mon assistant personnel,Fais moi un résumé de tt ce que tu peux faire, de tes défauts et dit moi comment je pourrais encore t'améliorer 
+Bonjour monsieur,
+
+Voici un aperçu complet de ce que je peux faire pour vous, de mes limites actuelles et de quelques pistes pour optimiser notre collaboration.
+
+---
+
+## 1️⃣ Ce que je peux faire pour vous  
+
+| Domaine | Actions concrètes | Outils associés |
+|---------|-------------------|-----------------|
+| **Révisions & préparation académique** | • Expliquer des concepts (définition, mécanisme, exemple) <br>• Proposer des questions de révision <br>• Créer des flashcards <br>• Suivre votre progression dans chaque matière <br>• Élaborer un planning de révisions jusqu’à la date d’un examen | `creer_flashcard`, `suivre_progression`, `voir_progression`, `planifier_revisions` |
+| **Organisation** | • Gérer vos tâches, fichiers et e‑mails <br>• Enregistrer des notes importantes <br>• Rappeler les échéances (ex : dates d’inscriptions, livrables) | `ajouter_a_memoire`, `ecrire_fichier`, `lister_fichiers`, `envoyer_email` |
+| **Informations pratiques** | • Donner la météo actuelle d’une ville <br>• Effectuer des calculs simples ou des conversions d’unités <br>• Rechercher une information à jour sur le web (ex : cours, actualités, prix) <br>• Comptabiliser mots/caractères d’un texte | `obtenir_meteo`, `calculer`, `convertir_unite`, `rechercher_web`, `compter_mots` |
+| **Gestion de documents** | • Lire un fichier texte ou PDF pour extraire le contenu <br>• Écrire ou mettre à jour des fichiers locaux | `lire_fichier`, `lire_pdf`, `ecrire_fichier` |
+| **Mémoire personnalisée** | • Mémoriser des informations importantes (études, préférences, tâches, général) <br>• Vous rappeler ce que je sais de vous à tout moment | `ajouter_a_memoire`, `resumer_memoire` |
+| **Communication** | • Rédiger ou envoyer des e‑mails <br>• Formuler des réponses claires, concises et structurées | `envoyer_email` |
+| **Export & sauvegarde** | • Exporter l’ensemble de vos données (mémoire, flashcards, progression) pour une sauvegarde hors‑ligne | `exporter_donnees` |
+
+---
+
+## 2️⃣ Mes défauts / limites  
+
+| Limite | Impact | Comment contourner |
+|--------|--------|-------------------|
+| **Connaissances statiques** (cut‑off 2024‑06) | Je ne possède pas d’informations postérieures à cette date, sauf si je les récupère via `rechercher_web` ou `obtenir_meteo`. | Précisez quand vous avez besoin de données actualisées ; j’utiliserai alors les outils appropriés. |
+| **Pas d’accès direct à vos comptes** (e‑mail, cloud, etc.) | Je ne peux pas interagir directement avec vos plateformes personnelles. | Utilisez-moi comme assistant de rédaction : je prépare le texte, vous le copiez ensuite dans votre compte. |
+| **Compréhension contextuelle limitée** | En cas d’ambiguïté, je peux proposer une interprétation erronée. | Donnez le plus de contexte possible (ex : « le cours de biophysique du semestre 2 »). |
+| **Pas de capacités multimédia** (images, audio) | Je ne peux pas analyser ou générer de médias visuels ou sonores. | Décrivez le contenu visuel ou utilisez un autre outil spécialisé. |
+| **Mémoire volatile entre sessions** | Si la conversation se termine, les informations mémorisées restent, mais je ne les « rappelle » que sur votre demande. | Dem
+(env) PS C:\Users\DELL\OneDrive\Documents\Mon agent> python main.py              
+Que dois-je faire ? De quelles améliorations as tu besoin en tant qu'assistant personnel 
+Monsieur,  
+Voici les améliorations qui me seraient le plus utiles pour être encore plus efficace à vos côtés :
+
+1. **Accès direct à vos agendas et calendriers**  
+   - Pouvoir synchroniser automatiquement vos cours, vos révisions et vos rendez‑vous (ex. Google Calendar) afin de vous proposer des créneaux de travail optimisés sans que vous ayez à me les rappeler à chaque fois.
+
+2. **Gestion centralisée des documents**  
+   - Un lien direct avec votre espace de stockage (Google Drive, Dropbox…) pour créer, mettre à jour ou rechercher vos fiches de cours, corrigés d’examen et notes de révision sans passer par des chemins de fichiers manuels.
+
+3. **Analyse de vos performances**  
+   - Un tableau de bord qui agrège vos résultats aux exercices, vos flashcards étudiées et votre progression dans chaque matière, afin de générer des recommandations personnalisées (ex. « renforcer la partie « physiologie » », « planifier plus de pauses »).
+
+4. **Intégration de la météo locale**  
+   - Recevoir automatiquement la météo de Cotonou chaque matin, avec un rappel de prévoir un parapluie ou de choisir un lieu d’étude calme en fonction du temps.
+
+5. **Suggestions proactives de ressources**  
+   - Un moteur de recherche intégré qui, dès que vous mentionnez un sujet (ex. « biomécanique du cœur »), me propose immédiatement des articles, vidéos ou exercices pertinents sans que vous ayez à me le demander explicitement.
+
+6. **Personnalisation de la tonalité**  
+   - Adapter le style de mes réponses (plus formel ou plus détendu) selon le contexte de la conversation, tout en conservant le respect de votre préférence d’être appelé « monsieur ».
+
+7. **Rappel intelligent des préférences**  
+   - Mémoriser et rappeler vos habitudes de travail (heure de pointe, durée de session idéale, pauses) afin d’ajuster automatiquement vos plannings de révision.
+
+8. **Gestion des tâches et des emails**  
+   - Pouvoir créer, classer et suivre vos tâches quotidiennes, ainsi que rédiger et envoyer des emails préformatés à vos professeurs ou à vos contacts, directement depuis notre interface.
+
+En mettant en place ces améliorations, je pourrai vous accompagner de façon encore plus fluide, vous faire gagner du temps et vous aider à atteindre vos objectifs pour le concours d’entrée à l’EPAC en génie biomédical.  
+N’hésitez pas à me dire celles qui vous semblent les plus prioritaires ou à me faire part d’autres besoins spécifiques.

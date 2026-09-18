@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from main import lancer_agent, client
-
+from agents_multiples import lancer_equipe
 st.title("Christiane - Assistant IA")
 import os
 
@@ -63,7 +63,7 @@ def detecter_skill(objectif_utilisateur):
         return choix if choix in skills_disponibles else ""
     except Exception:
         return ""
-
+mode = st.radio("Mode", ["Normal", "Équipe (recherche + rédaction + flashcards)"])
 autoriser_actions = st.checkbox("Autoriser les actions sensibles (écriture de fichiers, envoi d'emails)")
 fichier_uploade = st.file_uploader("Ou dépose un PDF à analyser", type="pdf")
 if fichier_uploade:
@@ -73,23 +73,35 @@ if fichier_uploade:
 question = st.text_input("Que dois-je faire ?")
 
 if st.button("Envoyer") and question:
-    skill_choisi = detecter_skill(question)
-    instructions_skill = ""
-    if skill_choisi:
-        try:
-            with open(f"skills/{skill_choisi}.txt", "r", encoding="utf-8") as f:
-                instructions_skill = f.read()
-        except FileNotFoundError:
-            pass
+    if mode == "Équipe (recherche + rédaction + flashcards)":
+        with st.spinner("L'équipe travaille (ça peut prendre 1 à 2 minutes)..."):
+            reponse_texte = lancer_equipe(question)
+        st.session_state.historique.append({
+            "question": question,
+            "reponse": reponse_texte,
+            "journal": "Mode équipe : Chercheur → Rédacteur → Créateur de flashcards",
+            "skill": "équipe"
+        })
+    else:
+        skill_choisi = detecter_skill(question)
+        instructions_skill = ""
+        if skill_choisi:
+            try:
+                with open(f"skills/{skill_choisi}.txt", "r", encoding="utf-8") as f:
+                    instructions_skill = f.read()
+            except FileNotFoundError:
+                pass
 
-    objectif_avec_skill = f"{instructions_skill}\n\n{question}" if instructions_skill else question
-    resultat = lancer_agent(objectif_avec_skill, confirmer_action=lambda: autoriser_actions)
-    st.session_state.historique.append({
-        "question": question,
-        "reponse": resultat["reponse"],
-        "journal": resultat["journal"],
-        "skill": skill_choisi or "aucun"
-    })
+        objectif_avec_skill = f"{instructions_skill}\n\n{question}" if instructions_skill else question
+        resultat = lancer_agent(objectif_avec_skill, confirmer_action=lambda: autoriser_actions)
+        st.session_state.historique.append({
+            "question": question,
+            "reponse": resultat["reponse"],
+            "journal": resultat["journal"],
+            "skill": skill_choisi or "aucun"
+        })
+   
+    
 sauvegarder_historique(st.session_state.historique)
 for echange in reversed(st.session_state.historique):
     st.write(f"**Toi :** {echange['question']}")
