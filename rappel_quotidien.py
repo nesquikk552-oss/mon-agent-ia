@@ -1,7 +1,9 @@
 from main import lancer_agent
 from outils import envoyer_email
 from dotenv import load_dotenv
+from outils import obtenir_meteo
 import os
+
 
 load_dotenv()
 
@@ -17,10 +19,13 @@ def envoyer_rappel():
         confirmer_action=lambda: True
     )
 
+    meteo_du_jour = obtenir_meteo("Cotonou")
+    message_final = f"{resultat['reponse']}\n\nMétéo du jour à Cotonou : {meteo_du_jour}"
+
     envoyer_email(
         destinataire=os.getenv("EMAIL_ADRESSE"),
         sujet="Ton résumé du jour - Christiane",
-        message=resultat["reponse"]
+        message=message_final
     )
 
 if __name__ == "__main__":

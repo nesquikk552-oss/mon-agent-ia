@@ -1,4 +1,5 @@
 import streamlit as st
+from gtts import gTTS
 import os
 from main import lancer_agent, client
 from agents_multiples import lancer_equipe
@@ -70,7 +71,23 @@ if fichier_uploade:
     with open(f"upload_{fichier_uploade.name}", "wb") as f:
         f.write(fichier_uploade.getbuffer())
     st.success(f"Fichier {fichier_uploade.name} prêt. Demande à Christiane de le lire avec lire_pdf.")
-question = st.text_input("Que dois-je faire ?")
+
+st.write("🎤 Ou enregistre ta question à la voix :")
+audio_enregistre = st.audio_input("Clique pour parler")
+
+question_vocale = ""
+if audio_enregistre is not None:
+    with st.spinner("Transcription en cours..."):
+        transcription = client.audio.transcriptions.create(
+            file=("audio.wav", audio_enregistre.read()),
+            model="whisper-large-v3",
+            language="fr"
+        )
+        question_vocale = transcription.text
+    st.success(f"Tu as dit : {question_vocale}")
+
+question_texte = st.text_input("Que dois-je faire ?")
+question = question_vocale or question_texte
 
 if st.button("Envoyer") and question:
     if mode == "Équipe (recherche + rédaction + flashcards)":
@@ -82,6 +99,9 @@ if st.button("Envoyer") and question:
             "journal": "Mode équipe : Chercheur → Rédacteur → Créateur de flashcards",
             "skill": "équipe"
         })
+        tts = gTTS(text=reponse_texte, lang='fr')
+        tts.save("reponse_audio.mp3")
+        st.audio("reponse_audio.mp3", autoplay=True)
     else:
         skill_choisi = detecter_skill(question)
         instructions_skill = ""
@@ -100,8 +120,10 @@ if st.button("Envoyer") and question:
             "journal": resultat["journal"],
             "skill": skill_choisi or "aucun"
         })
-   
-    
+        tts = gTTS(text=resultat["reponse"], lang='fr')
+        tts.save("reponse_audio.mp3")
+        st.audio("reponse_audio.mp3", autoplay=True)
+
 sauvegarder_historique(st.session_state.historique)
 for echange in reversed(st.session_state.historique):
     st.write(f"**Toi :** {echange['question']}")
