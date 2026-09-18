@@ -1,10 +1,26 @@
 import streamlit as st
-from gtts import gTTS
+import edge_tts
+import asyncio
+import re
 import os
 from main import lancer_agent, client
 from agents_multiples import lancer_equipe
 st.title("Christiane - Assistant IA")
 import os
+
+def generer_audio(texte, chemin="reponse_audio.mp3"):
+    async def _generer():
+        communicate = edge_tts.Communicate(texte, "fr-FR-DeniseNeural")
+        await communicate.save(chemin)
+    asyncio.run(_generer())
+
+def nettoyer_texte_audio(texte):
+    texte = re.sub(r'#+\s*', '', texte)
+    texte = re.sub(r'\*\*(.*?)\*\*', r'\1', texte)
+    texte = re.sub(r'\*(.*?)\*', r'\1', texte)
+    texte = re.sub(r'`(.*?)`', r'\1', texte)
+    texte = re.sub(r'^[\-\*]\s+', '', texte, flags=re.MULTILINE)
+    return texte
 
 if "authentifie" not in st.session_state:
     st.session_state.authentifie = False
@@ -99,8 +115,7 @@ if st.button("Envoyer") and question:
             "journal": "Mode équipe : Chercheur → Rédacteur → Créateur de flashcards",
             "skill": "équipe"
         })
-        tts = gTTS(text=reponse_texte, lang='fr')
-        tts.save("reponse_audio.mp3")
+        generer_audio(nettoyer_texte_audio(reponse_texte))
         st.audio("reponse_audio.mp3", autoplay=True)
     else:
         skill_choisi = detecter_skill(question)
@@ -120,8 +135,7 @@ if st.button("Envoyer") and question:
             "journal": resultat["journal"],
             "skill": skill_choisi or "aucun"
         })
-        tts = gTTS(text=resultat["reponse"], lang='fr')
-        tts.save("reponse_audio.mp3")
+        generer_audio(nettoyer_texte_audio(resultat["reponse"]))
         st.audio("reponse_audio.mp3", autoplay=True)
 
 sauvegarder_historique(st.session_state.historique)
