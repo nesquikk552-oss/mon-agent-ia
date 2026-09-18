@@ -20,6 +20,11 @@ def nettoyer_texte_audio(texte):
     texte = re.sub(r'\*(.*?)\*', r'\1', texte)
     texte = re.sub(r'`(.*?)`', r'\1', texte)
     texte = re.sub(r'^[\-\*]\s+', '', texte, flags=re.MULTILINE)
+    texte = re.sub(
+        r'[\U0001F300-\U0001FAFF\U00002600-\U000027BF\U0001F1E6-\U0001F1FF\U00002700-\U000027BF\U0001F900-\U0001F9FF\U00002190-\U000021FF\U00002B00-\U00002BFF]+',
+        '',
+        texte
+    )
     return texte
 
 if "authentifie" not in st.session_state:
