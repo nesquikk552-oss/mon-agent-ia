@@ -82,5 +82,29 @@
     "reponse": "Bonsoir, Monsieur ! Comment puis‑je vous aider ce soir ?",
     "journal": "[Agent] Bonsoir, Monsieur ! Comment puis‑je vous aider ce soir ?\n--- Terminé ---",
     "skill": "aucun"
+  },
+  {
+    "question": "bonsoir très cher",
+    "reponse": "Bonsoir, Monsieur ! J’espère que votre journée s’est bien passée. Que puis‑je faire pour vous ce soir ?",
+    "journal": "[Agent] Bonsoir, Monsieur ! J’espère que votre journée s’est bien passée. Que puis‑je faire pour vous ce soir ?\n--- Terminé ---",
+    "skill": "aucun"
+  },
+  {
+    "question": "Bonsoir ",
+    "reponse": "Bonsoir, Monsieur ! Comment se déroule votre soirée ?",
+    "journal": "[Agent] Bonsoir, Monsieur ! Comment se déroule votre soirée ?\n--- Terminé ---",
+    "skill": "aucun"
+  },
+  {
+    "question": "Bonsoir ",
+    "reponse": "Bonsoir, Monsieur ! J’espère que votre journée s’est bien passée. N’hésitez pas si vous avez besoin de quoi que ce soit.",
+    "journal": "[Agent] Bonsoir, Monsieur ! J’espère que votre journée s’est bien passée. N’hésitez pas si vous avez besoin de quoi que ce soit.\n--- Terminé ---",
+    "skill": "aucun"
+  },
+  {
+    "question": "BONsoir ma cher",
+    "reponse": "Bonsoir, Monsieur ! Comment se passe votre soirée ? 🌙",
+    "journal": "[Agent] Bonsoir, Monsieur ! Comment se passe votre soirée ? 🌙\n--- Terminé ---",
+    "skill": "aucun"
   }
 ]
