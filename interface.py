@@ -3,14 +3,43 @@ import edge_tts
 import asyncio
 import re
 import os
+import json
 from main import lancer_agent, client
+from streamlit_mic_recorder import speech_to_text
 from agents_multiples import lancer_equipe
-st.title("Christiane - Assistant IA")
-import os
+
+st.set_page_config(page_title="Christiane", page_icon="🪔", layout="centered")
+
+st.markdown("""
+<style>
+.bulle-utilisateur {
+    background-color: #E07A5F;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 18px 18px 4px 18px;
+    margin: 8px 0;
+    max-width: 80%;
+    margin-left: auto;
+}
+.bulle-christiane {
+    background-color: #F4E1D2;
+    color: #3D2B1F;
+    padding: 12px 16px;
+    border-radius: 18px 18px 18px 4px;
+    margin: 8px 0;
+    max-width: 80%;
+    margin-right: auto;
+}
+.entete-christiane {
+    text-align: center;
+    padding: 10px 0 20px 0;
+}
+</style>
+""", unsafe_allow_html=True)
 
 def generer_audio(texte, chemin="reponse_audio.mp3"):
     async def _generer():
-        communicate = edge_tts.Communicate(texte, "fr-FR-DeniseNeural")
+        communicate = edge_tts.Communicate(texte, "fr-FR-VivienneMultilingualNeural", rate="-5%")
         await communicate.save(chemin)
     asyncio.run(_generer())
 
@@ -31,6 +60,7 @@ if "authentifie" not in st.session_state:
     st.session_state.authentifie = False
 
 if not st.session_state.authentifie:
+    st.markdown("<div class='entete-christiane'><h1>🪔 Christiane</h1></div>", unsafe_allow_html=True)
     mot_de_passe_saisi = st.text_input("Mot de passe", type="password")
     if st.button("Se connecter"):
         if mot_de_passe_saisi == os.getenv("INTERFACE_MOT_DE_PASSE"):
@@ -39,7 +69,6 @@ if not st.session_state.authentifie:
         else:
             st.error("Mot de passe incorrect")
     st.stop()
-import json
 
 def charger_historique():
     try:
@@ -85,28 +114,29 @@ def detecter_skill(objectif_utilisateur):
         return choix if choix in skills_disponibles else ""
     except Exception:
         return ""
-mode = st.radio("Mode", ["Normal", "Équipe (recherche + rédaction + flashcards)"])
-autoriser_actions = st.checkbox("Autoriser les actions sensibles (écriture de fichiers, envoi d'emails)")
-fichier_uploade = st.file_uploader("Ou dépose un PDF à analyser", type="pdf")
-if fichier_uploade:
-    with open(f"upload_{fichier_uploade.name}", "wb") as f:
-        f.write(fichier_uploade.getbuffer())
-    st.success(f"Fichier {fichier_uploade.name} prêt. Demande à Christiane de le lire avec lire_pdf.")
 
-st.write("🎤 Ou enregistre ta question à la voix :")
-audio_enregistre = st.audio_input("Clique pour parler")
+with st.sidebar:
+    st.markdown("### ⚙️ Réglages")
+    mode = st.radio("Mode", ["Normal", "Équipe (recherche + rédaction + flashcards)"])
+    autoriser_actions = st.checkbox("Autoriser les actions sensibles (écriture de fichiers, envoi d'emails)")
+    fichier_uploade = st.file_uploader("Déposer un PDF à analyser", type="pdf")
+    if fichier_uploade:
+        with open(f"upload_{fichier_uploade.name}", "wb") as f:
+            f.write(fichier_uploade.getbuffer())
+        st.success(f"Fichier {fichier_uploade.name} prêt.")
 
-question_vocale = ""
-if audio_enregistre is not None:
-    with st.spinner("Transcription en cours..."):
-        transcription = client.audio.transcriptions.create(
-            file=("audio.wav", audio_enregistre.read()),
-            model="whisper-large-v3",
-            language="fr"
-        )
-        question_vocale = transcription.text
+st.markdown("<div class='entete-christiane'><h1>🪔 Christiane</h1><p>Ton assistante personnelle</p></div>", unsafe_allow_html=True)
+
+st.write("🎤 Clique et parle, Christiane transcrit en direct :")
+question_vocale = speech_to_text(
+    language="fr",
+    start_prompt="🎤 Parler",
+    stop_prompt="⏹️ Arrêter",
+    just_once=True,
+    key="micro_christiane"
+)
+if question_vocale:
     st.success(f"Tu as dit : {question_vocale}")
-
 question_texte = st.text_input("Que dois-je faire ?")
 question = question_vocale or question_texte
 
@@ -144,9 +174,9 @@ if st.button("Envoyer") and question:
         st.audio("reponse_audio.mp3", autoplay=True)
 
 sauvegarder_historique(st.session_state.historique)
+
 for echange in reversed(st.session_state.historique):
-    st.write(f"**Toi :** {echange['question']}")
-    st.write(f"**Christiane** *(mode: {echange['skill']})* : {echange['reponse']}")
+    st.markdown(f"<div class='bulle-utilisateur'>{echange['question']}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='bulle-christiane'>{echange['reponse']}</div>", unsafe_allow_html=True)
     with st.expander("Voir le détail technique"):
         st.text(echange['journal'])
-    st.divider()
