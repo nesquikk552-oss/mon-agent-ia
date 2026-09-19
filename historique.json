@@ -112,5 +112,11 @@
     "reponse": "Bonsoir, Monsieur ! 🌙  \nComment se passe votre soirée ? Besoin d’un coup de main pour vos révisions, votre planning ou un petit renseignement du quotidien ? Je suis prête à vous assister, avec le sourire.",
     "journal": "[Agent] Bonsoir, Monsieur ! 🌙  \nComment se passe votre soirée ? Besoin d’un coup de main pour vos révisions, votre planning ou un petit renseignement du quotidien ? Je suis prête à vous assister, avec le sourire.\n--- Terminé ---",
     "skill": "aucun"
+  },
+  {
+    "question": "Salut",
+    "reponse": "Bonjour, Monsieur !  \nQue puis‑je faire pour vous aujourd’hui ? 🙂",
+    "journal": "[Agent] Bonjour, Monsieur !  \nQue puis‑je faire pour vous aujourd’hui ? 🙂\n--- Terminé ---",
+    "skill": "aucun"
   }
 ]
