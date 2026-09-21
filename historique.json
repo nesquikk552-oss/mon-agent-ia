@@ -16,5 +16,11 @@
     "reponse": "Bonjour ! 😊  \nJe vois que vous mentionnez « Allume I LOVE YOU » de Dadju. Souhaitez‑vous :\n\n- en connaître le sens ou le contexte ?  \n- obtenir les paroles de la chanson ?  \n- savoir où la retrouver en streaming ?  \n\nDites‑moi ce qui vous intéresse, Monsieur, et je m’en occupe tout de suite.",
     "journal": "[Agent] Bonjour ! 😊  \nJe vois que vous mentionnez « Allume I LOVE YOU » de Dadju. Souhaitez‑vous :\n\n- en connaître le sens ou le contexte ?  \n- obtenir les paroles de la chanson ?  \n- savoir où la retrouver en streaming ?  \n\nDites‑moi ce qui vous intéresse, Monsieur, et je m’en occupe tout de suite.\n--- Terminé ---",
     "skill": "aucun"
+  },
+  {
+    "question": "comment ça va",
+    "reponse": "Bonjour, Monsieur ! Tout va très bien, merci. Et vous, comment se passe votre journée ?",
+    "journal": "[Agent] Bonjour, Monsieur ! Tout va très bien, merci. Et vous, comment se passe votre journée ?\n--- Terminé ---",
+    "skill": "aucun"
   }
 ]

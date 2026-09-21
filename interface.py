@@ -1,3 +1,4 @@
+from datetime import datetime
 import streamlit as st
 import edge_tts
 import asyncio
@@ -11,12 +12,20 @@ from main import lancer_agent, client
 from agents_multiples import lancer_equipe
 from streamlit_mic_recorder import speech_to_text
 
+def charger_carte_monde_base64(chemin="carte_monde.png"):
+    try:
+        with open(chemin, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    except FileNotFoundError:
+        return None
+
 def charger_logo_base64(chemin="logo.png"):
     try:
         with open(chemin, "rb") as f:
             return base64.b64encode(f.read()).decode()
     except FileNotFoundError:
         return None
+carte_monde_b64 = charger_carte_monde_base64()
 
 logo_b64 = charger_logo_base64()
 def globe_3d_html(taille=140):
@@ -72,11 +81,22 @@ st.markdown("""
     z-index: 0;
     pointer-events: none;
     background-image:
-        radial-gradient(#22D3EE22 1px, transparent 1px),
-        linear-gradient(#22D3EE11 1px, transparent 1px),
-        linear-gradient(90deg, #22D3EE11 1px, transparent 1px);
-    background-size: 22px 22px, 44px 44px, 44px 44px;
-    background-position: 0 0, 0 0, 0 0;
+        radial-gradient(#22D3EE22 1px, transparent 1px);
+    background-size: 22px 22px;
+}
+.carte-monde-fond {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 650px;
+    max-width: 85vw;
+    opacity: 0.07;
+    z-index: 0;
+    pointer-events: none;
+    filter: grayscale(1) sepia(1) hue-rotate(150deg) saturate(3);
+    -webkit-mask-image: radial-gradient(circle, black 40%, transparent 70%);
+    mask-image: radial-gradient(circle, black 40%, transparent 70%);
+}
 }
 .logo-fond {
     position: fixed;
@@ -153,6 +173,23 @@ st.markdown("""
     padding: 12px 16px; border-radius: 14px 14px 14px 4px; margin: 8px 0;
     max-width: 80%; margin-right: auto;
 }
+.zone-vocale { text-align: center; padding: 40px 20px; max-width: 600px; margin: 0 auto; }
+.zone-vocale .logo-vocal { font-size: 70px; text-shadow: 0 0 20px #22D3EE, 0 0 40px #22D3EE88; margin-bottom: 10px; }
+.logo-vocal.actif { animation: pulsation-hologramme 1.2s ease-in-out infinite; }
+@keyframes pulsation-hologramme {
+    0%, 100% { text-shadow: 0 0 20px #22D3EE, 0 0 40px #22D3EE88; transform: scale(1); }
+    50% { text-shadow: 0 0 35px #22D3EE, 0 0 70px #22D3EEcc; transform: scale(1.05); }
+}
+.anneaux-hologramme { position: relative; width: 120px; height: 120px; margin: 0 auto 16px; }
+.anneaux-hologramme .anneau { position: absolute; inset: 0; border: 1.5px solid #22D3EE; border-radius: 50%; opacity: 0; animation: expansion-anneau 2s ease-out infinite; }
+.anneaux-hologramme .anneau:nth-child(2) { animation-delay: 0.6s; }
+.anneaux-hologramme .anneau:nth-child(3) { animation-delay: 1.2s; }
+@keyframes expansion-anneau {
+    0% { transform: scale(0.6); opacity: 0.7; }
+    100% { transform: scale(1.4); opacity: 0; }
+}
+.reponse-vocale { background: #131A2A; border: 1px solid #22D3EE33; border-radius: 14px; padding: 24px; margin-top: 20px; font-size: 18px; line-height: 1.6; text-align: left; }
+.question-vocale-affichee { color: #7C8AA5; font-size: 14px; margin-bottom: 10px; text-align: left; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -179,6 +216,8 @@ if "authentifie" not in st.session_state:
 
 if not st.session_state.authentifie:
     st.markdown("<div class='fond-hud'></div>", unsafe_allow_html=True)
+    if carte_monde_b64:
+        st.markdown(f"<img class='carte-monde-fond' src='data:image/png;base64,{carte_monde_b64}'>", unsafe_allow_html=True)
     if logo_b64:
         st.markdown(f"<img class='logo-fond' src='data:image/png;base64,{logo_b64}'>", unsafe_allow_html=True)
     st.markdown("<br><br>", unsafe_allow_html=True)
@@ -193,7 +232,7 @@ if not st.session_state.authentifie:
     st.markdown("</div>", unsafe_allow_html=True)
 
     if bouton_connexion:
-            if mot_de_passe_saisi == os.getenv("MOT_DE_PASSE"):
+            if mot_de_passe_saisi == os.getenv("INTERFACE_MOT_DE_PASSE"):
                 st.session_state.authentifie = True
                 st.rerun()
             else:
@@ -243,7 +282,33 @@ def detecter_skill(objectif_utilisateur):
         return choix if choix in skills_disponibles else ""
     except Exception:
         return ""
+def traiter_question(question, mode_equipe, autoriser_actions_locales):
+    if mode_equipe:
+        reponse_texte = lancer_equipe(question)
+        journal = "Mode équipe : Chercheur → Rédacteur → Créateur de flashcards"
+        skill_utilise = "équipe"
+    else:
+        skill_choisi = detecter_skill(question)
+        instructions_skill = ""
+        if skill_choisi:
+            try:
+                with open(f"skills/{skill_choisi}.txt", "r", encoding="utf-8") as f:
+                    instructions_skill = f.read()
+            except FileNotFoundError:
+                pass
+        objectif_avec_skill = f"{instructions_skill}\n\n{question}" if instructions_skill else question
+        resultat = lancer_agent(objectif_avec_skill, confirmer_action=lambda: autoriser_actions_locales)
+        reponse_texte = resultat["reponse"]
+        journal = resultat["journal"]
+        skill_utilise = skill_choisi or "aucun"
 
+    st.session_state.historique.append({
+        "question": question, "reponse": reponse_texte,
+        "journal": journal, "skill": skill_utilise
+    })
+    sauvegarder_historique(st.session_state.historique)
+    generer_audio(nettoyer_texte_audio(reponse_texte))
+    return reponse_texte
 with st.sidebar:
     logo_sidebar = f"<img src='data:image/png;base64,{logo_b64}' width='28' style='vertical-align:middle;margin-right:8px;'>" if logo_b64 else "🌐"
     st.markdown(f"<div class='sidebar-titre'>{logo_sidebar} Christiane</div>", unsafe_allow_html=True)
@@ -252,7 +317,8 @@ with st.sidebar:
         st.session_state.historique = []
         sauvegarder_historique([])
         st.rerun()
-
+    st.markdown("<div class='sidebar-section'>Mode</div>", unsafe_allow_html=True)
+    mode_vocal = st.toggle("🎙️ Mode vocal uniquement", key="mode_vocal")
     st.markdown("<div class='sidebar-section'>Réglages</div>", unsafe_allow_html=True)
     mode = st.radio("Mode", ["Normal", "Équipe (recherche + rédaction + flashcards)"], label_visibility="collapsed")
     autoriser_actions = st.checkbox("Autoriser les actions sensibles")
@@ -266,88 +332,97 @@ with st.sidebar:
     for echange in list(reversed(st.session_state.historique))[:6]:
         st.markdown(f"<div class='historique-item'>{echange['question']}</div>", unsafe_allow_html=True)
 
-logo_hero = f"<img src='data:image/png;base64,{logo_b64}' width='70'>" if logo_b64 else "<span class='logo-globe'>🌐</span>"
-st.markdown(f"""
-<div class='hero-accueil'>
-    {logo_hero}
-    <div class='sous-titre'>Bon retour</div>
-    <h1>Que puis-je faire pour vous aujourd'hui ?</h1>
-</div>
-""", unsafe_allow_html=True)
+mode_equipe_actif = mode == "Équipe (recherche + rédaction + flashcards)"
 
-st.markdown("<div class='composer'>", unsafe_allow_html=True)
-col_micro, col_texte, col_envoyer = st.columns([1, 6, 1])
-with col_micro:
-    question_vocale = speech_to_text(language="fr", start_prompt="🎤", stop_prompt="⏹️", just_once=True, key="micro_christiane")
-with col_texte:
-    question_texte = st.text_input("Que dois-je faire ?", label_visibility="collapsed", placeholder="Écrivez ou parlez à Christiane...")
-with col_envoyer:
-    bouton_envoyer = st.button("➤", use_container_width=True)
-st.markdown("</div>", unsafe_allow_html=True)
-col_logo, col_titre, col_date = st.columns([1, 4, 2])
-with col_logo:
-    components.html(globe_3d_html(50), height=55)
-with col_titre:
-    st.markdown("<h1 style='color:#22D3EE; letter-spacing:2px; margin:8px 0 0 0;'>CHRISTIANE</h1><p style='color:#7C8AA5; font-size:13px; margin:0;'>Assistante personnelle</p>", unsafe_allow_html=True)
-with col_date:
-    st.markdown(f"<div style='text-align:right; color:#7C8AA5; font-size:13px; margin-top:16px;'>{maintenant}</div>", unsafe_allow_html=True)
+if mode_vocal:
+    logo_vocal = f"<img src='data:image/png;base64,{logo_b64}' width='70'>" if logo_b64 else "<span class='logo-vocal'>🌐</span>"
+    st.markdown(f"""
+    <div class='zone-vocale'>
+        <div class='anneaux-hologramme'>
+            <div class='anneau'></div>
+            <div class='anneau'></div>
+            <div class='anneau'></div>
+            <div class='logo-vocal actif' style='position:absolute; inset:0; display:flex; align-items:center; justify-content:center;'>{logo_vocal}</div>
+        </div>
+        <div class='sous-titre' style='color:#22D3EE; letter-spacing:3px; font-size:12px; text-transform:uppercase;'>Mode vocal</div>
+        <h1 style='color:#E5E9F0;'>Parlez à Christiane</h1>
+    </div>
+    """, unsafe_allow_html=True)
 
-if question_vocale:
-    st.caption(f"🎤 Tu as dit : {question_vocale}")
+    col_g, col_c, col_d = st.columns([1, 1, 1])
+    with col_c:
+        question_vocale_seule = speech_to_text(
+            language="fr", start_prompt="🎤 Appuyez pour parler",
+            stop_prompt="⏹️ Arrêter", just_once=True, use_container_width=True,
+            key="micro_vocal_seul"
+        )
 
-question = question_vocale or question_texte
-
-suggestions = {
-    "revision": ("📘", "Réviser un cours", "Prépare une fiche ou un QCM sur un sujet"),
-    "redaction": ("✍️", "Rédiger un texte", "Aide à écrire ou structurer un document"),
-    "organisation": ("🗂️", "M'organiser", "Planifier mes révisions ou mes tâches"),
-}
-col_a, col_b, col_c = st.columns(3)
-cartes = [col_a, col_b, col_c]
-for col, (cle, (icone, titre, desc)) in zip(cartes, suggestions.items()):
-    with col:
-        st.markdown(f"<div class='carte-suggestion'><div class='titre'>{icone} {titre}</div><div class='desc'>{desc}</div></div>", unsafe_allow_html=True)
-        if st.button("Utiliser", key=f"suggestion_{cle}", use_container_width=True):
-            question = titre
-            bouton_envoyer = True
-
-if bouton_envoyer and question:
-    if mode == "Équipe (recherche + rédaction + flashcards)":
-        with st.spinner("L'équipe travaille (ça peut prendre 1 à 2 minutes)..."):
-            reponse_texte = lancer_equipe(question)
-        st.session_state.historique.append({
-            "question": question,
-            "reponse": reponse_texte,
-            "journal": "Mode équipe : Chercheur → Rédacteur → Créateur de flashcards",
-            "skill": "équipe"
-        })
-        generer_audio(nettoyer_texte_audio(reponse_texte))
-        st.audio("reponse_audio.mp3", autoplay=True)
-    else:
-        skill_choisi = detecter_skill(question)
-        instructions_skill = ""
-        if skill_choisi:
-            try:
-                with open(f"skills/{skill_choisi}.txt", "r", encoding="utf-8") as f:
-                    instructions_skill = f.read()
-            except FileNotFoundError:
-                pass
-
-        objectif_avec_skill = f"{instructions_skill}\n\n{question}" if instructions_skill else question
-        resultat = lancer_agent(objectif_avec_skill, confirmer_action=lambda: autoriser_actions)
-        st.session_state.historique.append({
-            "question": question,
-            "reponse": resultat["reponse"],
-            "journal": resultat["journal"],
-            "skill": skill_choisi or "aucun"
-        })
-        generer_audio(nettoyer_texte_audio(resultat["reponse"]))
+    if question_vocale_seule:
+        with st.spinner("Christiane réfléchit..."):
+            reponse = traiter_question(question_vocale_seule, mode_equipe_actif, autoriser_actions)
+        st.markdown(f"""
+        <div class='reponse-vocale'>
+            <div class='question-vocale-affichee'>🎤 {question_vocale_seule}</div>
+            {reponse}
+        </div>
+        """, unsafe_allow_html=True)
         st.audio("reponse_audio.mp3", autoplay=True)
 
-sauvegarder_historique(st.session_state.historique)
+else:
+    logo_hero = f"<img src='data:image/png;base64,{logo_b64}' width='70'>" if logo_b64 else "<span class='logo-globe'>🌐</span>"
+    st.markdown(f"""
+    <div class='hero-accueil'>
+        {logo_hero}
+        <div class='sous-titre'>Bon retour</div>
+        <h1>Que puis-je faire pour vous aujourd'hui ?</h1>
+    </div>
+    """, unsafe_allow_html=True)
 
-for echange in reversed(st.session_state.historique):
-    st.markdown(f"<div class='bulle-utilisateur'>{echange['question']}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='bulle-christiane'>{echange['reponse']}</div>", unsafe_allow_html=True)
-    with st.expander("Voir le détail technique"):
-        st.text(echange['journal'])
+    st.markdown("<div class='composer'>", unsafe_allow_html=True)
+    col_micro, col_texte, col_envoyer = st.columns([1, 6, 1])
+    with col_micro:
+        question_vocale = speech_to_text(language="fr", start_prompt="🎤", stop_prompt="⏹️", just_once=True, key="micro_christiane")
+    with col_texte:
+        question_texte = st.text_input("Que dois-je faire ?", label_visibility="collapsed", placeholder="Écrivez ou parlez à Christiane...")
+    with col_envoyer:
+        bouton_envoyer = st.button("➤", use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    col_logo, col_titre, col_date = st.columns([1, 4, 2])
+    with col_logo:
+        components.html(globe_3d_html(50), height=55)
+    with col_titre:
+        st.markdown("<h1 style='color:#22D3EE; letter-spacing:2px; margin:8px 0 0 0;'>CHRISTIANE</h1><p style='color:#7C8AA5; font-size:13px; margin:0;'>Assistante personnelle</p>", unsafe_allow_html=True)
+    maintenant = datetime.now().strftime("%A %d %B %Y")
+    with col_date:
+        st.markdown(f"<div style='text-align:right; color:#7C8AA5; font-size:13px; margin-top:16px;'>{maintenant}</div>", unsafe_allow_html=True)
+
+    if question_vocale:
+        st.caption(f"🎤 Tu as dit : {question_vocale}")
+
+    question = question_vocale or question_texte
+
+    suggestions = {
+        "revision": ("📘", "Réviser un cours", "Prépare une fiche ou un QCM sur un sujet"),
+        "redaction": ("✍️", "Rédiger un texte", "Aide à écrire ou structurer un document"),
+        "organisation": ("🗂️", "M'organiser", "Planifier mes révisions ou mes tâches"),
+    }
+    col_a, col_b, col_c = st.columns(3)
+    cartes = [col_a, col_b, col_c]
+    for col, (cle, (icone, titre, desc)) in zip(cartes, suggestions.items()):
+        with col:
+            st.markdown(f"<div class='carte-suggestion'><div class='titre'>{icone} {titre}</div><div class='desc'>{desc}</div></div>", unsafe_allow_html=True)
+            if st.button("Utiliser", key=f"suggestion_{cle}", use_container_width=True):
+                question = titre
+                bouton_envoyer = True
+
+    if bouton_envoyer and question:
+        with st.spinner("Christiane réfléchit..."):
+            traiter_question(question, mode_equipe_actif, autoriser_actions)
+        st.audio("reponse_audio.mp3", autoplay=True)
+
+    for echange in reversed(st.session_state.historique):
+        st.markdown(f"<div class='bulle-utilisateur'>{echange['question']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='bulle-christiane'>{echange['reponse']}</div>", unsafe_allow_html=True)
+        with st.expander("Voir le détail technique"):
+            st.text(echange['journal'])
