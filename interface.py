@@ -150,10 +150,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 def globe_anime_html(taille=140):
+    rayon = int(taille * 0.85)
     return f"""
-    <div style="position:relative; display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto; perspective:600px;">
-        <div class="tumble_{taille}" style="width:100%; height:100%; transform-style:preserve-3d; display:flex; align-items:center; justify-content:center;">
-            <img src="data:image/png;base64,{logo_b64}" style="width:100%; height:100%; object-fit:contain;">
+    <div style="position:relative; display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto; perspective:700px; overflow:visible;">
+        <div class="tumble_{taille}" style="width:{int(taille*0.75)}px; height:{int(taille*0.75)}px; transform-style:preserve-3d; will-change:transform;">
+            <img src="data:image/png;base64,{logo_b64}" style="width:100%; height:100%; object-fit:contain; image-rendering:auto;">
         </div>
         <div class="orbite_{taille} orbite-a_{taille}"><div class="satellite_{taille} sat-a_{taille}"></div></div>
         <div class="orbite_{taille} orbite-b_{taille}"><div class="satellite_{taille} sat-b_{taille}"></div></div>
@@ -161,14 +162,12 @@ def globe_anime_html(taille=140):
     </div>
     <style>
     .tumble_{taille} {{
-        animation: tumble_{taille} 22s ease-in-out infinite;
+        animation: tumble_{taille} 10s ease-in-out infinite;
     }}
     @keyframes tumble_{taille} {{
-        0%   {{ transform: rotateX(0deg) rotateY(0deg); }}
-        25%  {{ transform: rotateX(12deg) rotateY(20deg); }}
-        50%  {{ transform: rotateX(-8deg) rotateY(0deg); }}
-        75%  {{ transform: rotateX(12deg) rotateY(-20deg); }}
-        100% {{ transform: rotateX(0deg) rotateY(0deg); }}
+        0%   {{ transform: rotateY(0deg); }}
+        50%  {{ transform: rotateY(180deg); }}
+        100% {{ transform: rotateY(360deg); }}
     }}
     .orbite_{taille} {{
         position: absolute;
@@ -178,34 +177,28 @@ def globe_anime_html(taille=140):
     }}
     .satellite_{taille} {{
         position: absolute;
-        width: 6px; height: 6px;
+        width: 7px; height: 7px;
         border-radius: 50%;
         background: #22D3EE;
-        box-shadow: 0 0 6px #22D3EE, 0 0 12px #22D3EEaa;
+        box-shadow: 0 0 8px #22D3EE, 0 0 14px #22D3EEcc;
     }}
-    .orbite-a_{taille} {{
-        animation: orbite-a_{taille} 6s linear infinite;
-    }}
-    .sat-a_{taille} {{ top: {int(taille*0.62)}px; left: 0; margin-left: -3px; }}
+    .orbite-a_{taille} {{ animation: orbite-a_{taille} 5s linear infinite; }}
+    .sat-a_{taille} {{ top: -{rayon}px; left: -3px; }}
     @keyframes orbite-a_{taille} {{
-        from {{ transform: rotate(0deg) rotateX(65deg); }}
-        to   {{ transform: rotate(360deg) rotateX(65deg); }}
+        from {{ transform: rotate(0deg) rotateX(70deg); }}
+        to   {{ transform: rotate(360deg) rotateX(70deg); }}
     }}
-    .orbite-b_{taille} {{
-        animation: orbite-b_{taille} 9s linear infinite reverse;
-    }}
-    .sat-b_{taille} {{ top: {int(taille*0.58)}px; left: 0; margin-left: -3px; background:#7FE7D8; box-shadow: 0 0 6px #7FE7D8, 0 0 12px #7FE7D8aa; }}
+    .orbite-b_{taille} {{ animation: orbite-b_{taille} 8s linear infinite reverse; }}
+    .sat-b_{taille} {{ top: -{rayon}px; left: -3px; background:#7FE7D8; box-shadow: 0 0 8px #7FE7D8, 0 0 14px #7FE7D8cc; }}
     @keyframes orbite-b_{taille} {{
-        from {{ transform: rotate(0deg) rotateX(-50deg) rotateZ(30deg); }}
-        to   {{ transform: rotate(360deg) rotateX(-50deg) rotateZ(30deg); }}
+        from {{ transform: rotate(0deg) rotateX(-55deg) rotateZ(35deg); }}
+        to   {{ transform: rotate(360deg) rotateX(-55deg) rotateZ(35deg); }}
     }}
-    .orbite-c_{taille} {{
-        animation: orbite-c_{taille} 13s linear infinite;
-    }}
-    .sat-c_{taille} {{ top: {int(taille*0.68)}px; left: 0; margin-left: -2.5px; width:5px; height:5px; background:#BFFBF0; box-shadow: 0 0 5px #BFFBF0; }}
+    .orbite-c_{taille} {{ animation: orbite-c_{taille} 12s linear infinite; }}
+    .sat-c_{taille} {{ top: -{rayon}px; left: -2.5px; width:5px; height:5px; background:#BFFBF0; box-shadow: 0 0 6px #BFFBF0; }}
     @keyframes orbite-c_{taille} {{
-        from {{ transform: rotate(0deg) rotateX(20deg) rotateZ(-40deg); }}
-        to   {{ transform: rotate(360deg) rotateX(20deg) rotateZ(-40deg); }}
+        from {{ transform: rotate(0deg) rotateX(25deg) rotateZ(-40deg); }}
+        to   {{ transform: rotate(360deg) rotateX(25deg) rotateZ(-40deg); }}
     }}
     </style>
     """
@@ -242,7 +235,7 @@ if not st.session_state.authentifie:
     with col2:
         st.markdown("<div class='carte-connexion'>", unsafe_allow_html=True)
         st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
-        components.html(globe_anime_html(100), height=110)
+        components.html(globe_anime_html(160), height=180)
         st.markdown("<h2 style='text-align:center; margin-top:-10px;'>Christiane</h2></div>", unsafe_allow_html=True)
         mot_de_passe_saisi = st.text_input("Mot de passe", type="password")
         bouton_connexion = st.button("Se connecter")
@@ -407,7 +400,7 @@ else:
 
     col_logo, col_titre, col_date = st.columns([1, 4, 2])
     with col_logo:
-        components.html(globe_anime_html(50), height=55)
+        components.html(globe_anime_html(65), height=75)
     with col_titre:
         st.markdown("<h1 style='color:#22D3EE; letter-spacing:2px; margin:8px 0 0 0;'>CHRISTIANE</h1><p style='color:#7C8AA5; font-size:13px; margin:0;'>Assistante personnelle</p>", unsafe_allow_html=True)
     maintenant = datetime.now().strftime("%A %d %B %Y")
