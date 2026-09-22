@@ -28,170 +28,69 @@ def charger_logo_base64(chemin="logo.png"):
 carte_monde_b64 = charger_carte_monde_base64()
 
 logo_b64 = charger_logo_base64()
-def globe_3d_html(taille=140):
+def globe_anime_html(taille=140):
     return f"""
-    <div style="display:flex; justify-content:center; align-items:center; background:transparent; margin:0 auto;">
-      <canvas id="globeCanvas_{taille}" width="{taille}" height="{taille}"></canvas>
+    <div style="display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto; perspective:600px;">
+    <div class="tumble_{taille}" style="width:100%; height:100%; transform-style:preserve-3d;">
+    <svg width="100%" height="100%" viewBox="0 0 380 380">
+    <defs>
+    <linearGradient id="sphG_{taille}" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#123A4D"/>
+    <stop offset="55%" stop-color="#0E5C68"/>
+    <stop offset="100%" stop-color="#062028"/>
+    </linearGradient>
+    <style>
+    .halo_{taille} {{ fill: none; stroke: #22D3EE; opacity: 0.12; }}
+    .orbit_{taille} {{ fill: none; stroke: #7FE7D8; stroke-width: 2.2; opacity: 0.85; }}
+    .orbitb_{taille} {{ fill: none; stroke: #22D3EE; stroke-width: 2.2; opacity: 0.85; }}
+    .spec_{taille} {{ fill: #BFFBF0; opacity: 0.16; }}
+    .mesh_{taille} {{ fill: none; stroke: #9FEFE0; stroke-width: 0.5; opacity: 0.35; }}
+    .grp-sphere_{taille} {{ transform-origin: 190px 190px; animation: rot-sphere_{taille} 14s linear infinite; }}
+    .grp-ring-a_{taille} {{ transform-origin: 190px 190px; animation: rot-ring-a_{taille} 10s linear infinite; }}
+    .grp-ring-b_{taille} {{ transform-origin: 190px 190px; animation: rot-ring-b_{taille} 15s linear infinite reverse; }}
+    @keyframes rot-sphere_{taille} {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(360deg); }} }}
+    @keyframes rot-ring-a_{taille} {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(360deg); }} }}
+    @keyframes rot-ring-b_{taille} {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(360deg); }} }}
+    </style>
+    </defs>
+    <circle cx="190" cy="190" r="175" class="halo_{taille}" stroke-width="24"/>
+    <g class="grp-sphere_{taille}">
+    <circle cx="190" cy="190" r="115" fill="url(#sphG_{taille})" stroke="#5DE0C6" stroke-width="1"/>
+    <clipPath id="clipG_{taille}"><circle cx="190" cy="190" r="115"/></clipPath>
+    <g clip-path="url(#clipG_{taille})">
+    <ellipse cx="190" cy="190" rx="115" ry="22" class="mesh_{taille}"/>
+    <ellipse cx="190" cy="190" rx="115" ry="48" class="mesh_{taille}"/>
+    <ellipse cx="190" cy="190" rx="115" ry="76" class="mesh_{taille}"/>
+    <ellipse cx="190" cy="190" rx="22" ry="115" class="mesh_{taille}"/>
+    <ellipse cx="190" cy="190" rx="48" ry="115" class="mesh_{taille}"/>
+    <ellipse cx="190" cy="190" rx="76" ry="115" class="mesh_{taille}"/>
+    </g>
+    <ellipse cx="148" cy="138" rx="38" ry="20" class="spec_{taille}"/>
+    </g>
+    <g class="grp-ring-a_{taille}">
+    <ellipse cx="190" cy="190" rx="155" ry="46" class="orbit_{taille}" transform="rotate(-20 190 190)"/>
+    </g>
+    <g class="grp-ring-b_{taille}">
+    <ellipse cx="190" cy="190" rx="155" ry="46" class="orbitb_{taille}" transform="rotate(20 190 190)"/>
+    </g>
+    <circle cx="337" cy="150" r="3" fill="#7FE7D8"/>
+    <circle cx="48" cy="232" r="2.2" fill="#5DE0C6"/>
+    </svg>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-    (function(){{
-      var canvas = document.getElementById('globeCanvas_{taille}');
-      var renderer = new THREE.WebGLRenderer({{canvas: canvas, alpha: true, antialias: true}});
-      renderer.setSize({taille}, {taille});
-      var scene = new THREE.Scene();
-      var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-      camera.position.z = 3;
-
-      var geometrie = new THREE.SphereGeometry(1, 24, 16);
-      var filaire = new THREE.WireframeGeometry(geometrie);
-      var sphere = new THREE.LineSegments(filaire);
-      sphere.material.color.set(0x5DCAA5);
-      sphere.material.transparent = true;
-      sphere.material.opacity = 0.85;
-      scene.add(sphere);
-
-      var anneauGeo = new THREE.RingGeometry(1.25, 1.27, 64);
-      var anneauMat = new THREE.MeshBasicMaterial({{color: 0x22D3EE, side: THREE.DoubleSide, transparent: true, opacity: 0.4}});
-      var anneau = new THREE.Mesh(anneauGeo, anneauMat);
-      anneau.rotation.x = Math.PI / 2.3;
-      scene.add(anneau);
-
-      function animer(){{
-        requestAnimationFrame(animer);
-        sphere.rotation.y += 0.006;
-        sphere.rotation.x += 0.001;
-        anneau.rotation.z += 0.004;
-        renderer.render(scene, camera);
-      }}
-      animer();
-    }})();
-    </script>
+    </div>
+    <style>
+    .tumble_{taille} {{
+        animation: tumble_{taille} 22s ease-in-out infinite;
+    }}
+    @keyframes tumble_{taille} {{
+        0%   {{ transform: rotateX(0deg) rotateY(0deg); }}
+        25%  {{ transform: rotateX(15deg) rotateY(90deg); }}
+        50%  {{ transform: rotateX(-10deg) rotateY(180deg); }}
+        75%  {{ transform: rotateX(12deg) rotateY(270deg); }}
+        100% {{ transform: rotateX(0deg) rotateY(360deg); }}
+    }}
+    </style>
     """
-st.set_page_config(page_title="Christiane", page_icon="logo.png" if os.path.exists("logo.png") else "🌐", layout="wide")
-
-st.markdown("""
-<style>
-.stApp {.
-    background: radial-gradient(circle at 50% 20%, #131A2A 0%, #0B0F1A 55%, #060810 100%);
-}
-.fond-hud {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-image:
-        radial-gradient(#22D3EE22 1px, transparent 1px);
-    background-size: 22px 22px;
-}
-.carte-monde-fond {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 650px;
-    max-width: 85vw;
-    opacity: 0.07;
-    z-index: 0;
-    pointer-events: none;
-    filter: grayscale(1) sepia(1) hue-rotate(150deg) saturate(3);
-    -webkit-mask-image: radial-gradient(circle, black 40%, transparent 70%);
-    mask-image: radial-gradient(circle, black 40%, transparent 70%);
-}
-}
-.logo-fond {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 480px;
-    opacity: 0.05;
-    z-index: 0;
-    pointer-events: none;
-}
-.carte-connexion {
-    position: relative;
-    z-index: 1;
-    background: #0E1420cc;
-    border: 1px solid #22D3EE55;
-    border-radius: 4px;
-    padding: 40px 34px;
-    backdrop-filter: blur(4px);
-    box-shadow: 0 0 30px #22D3EE22;
-}
-.carte-connexion::before, .carte-connexion::after {
-    content: "";
-    position: absolute;
-    width: 18px; height: 18px;
-    border: 2px solid #22D3EE;
-    opacity: 0.8;
-}
-.carte-connexion::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
-.carte-connexion::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
-.entete-connexion h1 { font-size: 56px; margin-bottom: 0; }
-.logo-globe {
-    font-size: 34px;
-    text-shadow: 0 0 12px #22D3EE, 0 0 24px #22D3EE88;
-}
-[data-testid="stSidebar"] { background-color: #0E1420; }
-.sidebar-titre {
-    display:flex; align-items:center; gap:8px;
-    font-size: 20px; font-weight:600; color:#E5E9F0;
-    margin-bottom: 18px;
-}
-.sidebar-section {
-    text-transform: uppercase; font-size: 11px; letter-spacing: 1.5px;
-    color: #5E6B85; margin: 22px 0 8px 0;
-}
-.historique-item {
-    font-size: 13px; color: #9AA6BC; padding: 6px 0;
-    border-bottom: 1px solid #1C2333; overflow: hidden;
-    text-overflow: ellipsis; white-space: nowrap;
-}
-.hero-accueil { text-align: center; margin: 10px 0 20px 0; }
-.hero-accueil .sous-titre {
-    text-transform: uppercase; letter-spacing: 3px; font-size: 12px;
-    color: #22D3EE; margin-top: 14px; margin-bottom: 6px;
-}
-.hero-accueil h1 { font-size: 30px; color: #E5E9F0; margin: 0; }
-.composer {
-    background: #131A2A; border: 1px solid #22D3EE33;
-    border-radius: 18px; padding: 10px 16px; margin: 10px 0 26px 0;
-}
-.carte-suggestion {
-    background: #131A2A; border: 1px solid #22D3EE22; border-radius: 12px;
-    padding: 16px; text-align:left; margin-bottom: 8px;
-}
-.carte-suggestion .titre { color:#22D3EE; font-weight:600; font-size:14px; margin-bottom:4px; }
-.carte-suggestion .desc { color:#7C8AA5; font-size:12px; }
-.bulle-utilisateur {
-    background-color: #22D3EE; color: #0B0F1A; padding: 12px 16px;
-    border-radius: 14px 14px 4px 14px; margin: 8px 0; max-width: 80%;
-    margin-left: auto; font-weight: 500;
-}
-.bulle-christiane {
-    background-color: #131A2A; color: #E5E9F0; border: 1px solid #22D3EE22;
-    padding: 12px 16px; border-radius: 14px 14px 14px 4px; margin: 8px 0;
-    max-width: 80%; margin-right: auto;
-}
-.zone-vocale { text-align: center; padding: 40px 20px; max-width: 600px; margin: 0 auto; }
-.zone-vocale .logo-vocal { font-size: 70px; text-shadow: 0 0 20px #22D3EE, 0 0 40px #22D3EE88; margin-bottom: 10px; }
-.logo-vocal.actif { animation: pulsation-hologramme 1.2s ease-in-out infinite; }
-@keyframes pulsation-hologramme {
-    0%, 100% { text-shadow: 0 0 20px #22D3EE, 0 0 40px #22D3EE88; transform: scale(1); }
-    50% { text-shadow: 0 0 35px #22D3EE, 0 0 70px #22D3EEcc; transform: scale(1.05); }
-}
-.anneaux-hologramme { position: relative; width: 120px; height: 120px; margin: 0 auto 16px; }
-.anneaux-hologramme .anneau { position: absolute; inset: 0; border: 1.5px solid #22D3EE; border-radius: 50%; opacity: 0; animation: expansion-anneau 2s ease-out infinite; }
-.anneaux-hologramme .anneau:nth-child(2) { animation-delay: 0.6s; }
-.anneaux-hologramme .anneau:nth-child(3) { animation-delay: 1.2s; }
-@keyframes expansion-anneau {
-    0% { transform: scale(0.6); opacity: 0.7; }
-    100% { transform: scale(1.4); opacity: 0; }
-}
-.reponse-vocale { background: #131A2A; border: 1px solid #22D3EE33; border-radius: 14px; padding: 24px; margin-top: 20px; font-size: 18px; line-height: 1.6; text-align: left; }
-.question-vocale-affichee { color: #7C8AA5; font-size: 14px; margin-bottom: 10px; text-align: left; }
-</style>
-""", unsafe_allow_html=True)
 
 def generer_audio(texte, chemin="reponse_audio.mp3"):
     async def _generer():
@@ -225,7 +124,7 @@ if not st.session_state.authentifie:
     with col2:
         st.markdown("<div class='carte-connexion'>", unsafe_allow_html=True)
         st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
-        components.html(globe_3d_html(100), height=110)
+        components.html(globe_anime_html(100), height=110)
         st.markdown("<h2 style='text-align:center; margin-top:-10px;'>Christiane</h2></div>", unsafe_allow_html=True)
         mot_de_passe_saisi = st.text_input("Mot de passe", type="password")
         bouton_connexion = st.button("Se connecter")
@@ -390,7 +289,7 @@ else:
 
     col_logo, col_titre, col_date = st.columns([1, 4, 2])
     with col_logo:
-        components.html(globe_3d_html(50), height=55)
+        components.html(globe_anime_html(50), height=55)
     with col_titre:
         st.markdown("<h1 style='color:#22D3EE; letter-spacing:2px; margin:8px 0 0 0;'>CHRISTIANE</h1><p style='color:#7C8AA5; font-size:13px; margin:0;'>Assistante personnelle</p>", unsafe_allow_html=True)
     maintenant = datetime.now().strftime("%A %d %B %Y")
