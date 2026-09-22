@@ -149,60 +149,96 @@ st.markdown("""
 .question-vocale-affichee { color: #7C8AA5; font-size: 14px; margin-bottom: 10px; text-align: left; }
 </style>
 """, unsafe_allow_html=True)
-def globe_anime_html(taille=140):
-    rayon = int(taille * 0.85)
+def globe_anime_html(taille=160):
     return f"""
-    <div style="position:relative; display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto; perspective:700px; overflow:visible;">
-        <div class="tumble_{taille}" style="width:{int(taille*0.75)}px; height:{int(taille*0.75)}px; transform-style:preserve-3d; will-change:transform;">
-            <img src="data:image/png;base64,{logo_b64}" style="width:100%; height:100%; object-fit:contain; image-rendering:auto;">
-        </div>
-        <div class="orbite_{taille} orbite-a_{taille}"><div class="satellite_{taille} sat-a_{taille}"></div></div>
-        <div class="orbite_{taille} orbite-b_{taille}"><div class="satellite_{taille} sat-b_{taille}"></div></div>
-        <div class="orbite_{taille} orbite-c_{taille}"><div class="satellite_{taille} sat-c_{taille}"></div></div>
+    <div style="display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto;">
+        <canvas id="globe_{taille}" width="{taille}" height="{taille}"></canvas>
     </div>
-    <style>
-    .tumble_{taille} {{
-        animation: tumble_{taille} 10s ease-in-out infinite;
-    }}
-    @keyframes tumble_{taille} {{
-        0%   {{ transform: rotateY(0deg); }}
-        50%  {{ transform: rotateY(180deg); }}
-        100% {{ transform: rotateY(360deg); }}
-    }}
-    .orbite_{taille} {{
-        position: absolute;
-        top: 50%; left: 50%;
-        width: 0; height: 0;
-        transform-style: preserve-3d;
-    }}
-    .satellite_{taille} {{
-        position: absolute;
-        width: 7px; height: 7px;
-        border-radius: 50%;
-        background: #22D3EE;
-        box-shadow: 0 0 8px #22D3EE, 0 0 14px #22D3EEcc;
-    }}
-    .orbite-a_{taille} {{ animation: orbite-a_{taille} 5s linear infinite; }}
-    .sat-a_{taille} {{ top: -{rayon}px; left: -3px; }}
-    @keyframes orbite-a_{taille} {{
-        from {{ transform: rotate(0deg) rotateX(70deg); }}
-        to   {{ transform: rotate(360deg) rotateX(70deg); }}
-    }}
-    .orbite-b_{taille} {{ animation: orbite-b_{taille} 8s linear infinite reverse; }}
-    .sat-b_{taille} {{ top: -{rayon}px; left: -3px; background:#7FE7D8; box-shadow: 0 0 8px #7FE7D8, 0 0 14px #7FE7D8cc; }}
-    @keyframes orbite-b_{taille} {{
-        from {{ transform: rotate(0deg) rotateX(-55deg) rotateZ(35deg); }}
-        to   {{ transform: rotate(360deg) rotateX(-55deg) rotateZ(35deg); }}
-    }}
-    .orbite-c_{taille} {{ animation: orbite-c_{taille} 12s linear infinite; }}
-    .sat-c_{taille} {{ top: -{rayon}px; left: -2.5px; width:5px; height:5px; background:#BFFBF0; box-shadow: 0 0 6px #BFFBF0; }}
-    @keyframes orbite-c_{taille} {{
-        from {{ transform: rotate(0deg) rotateX(25deg) rotateZ(-40deg); }}
-        to   {{ transform: rotate(360deg) rotateX(25deg) rotateZ(-40deg); }}
-    }}
-    </style>
-    """
+    <script>
+    (function() {{
+        var canvas = document.getElementById("globe_{taille}");
+        var ctx = canvas.getContext("2d");
+        var taille = {taille};
+        var centre = taille / 2;
+        var rayon = taille * 0.32;
 
+        function pointsSphere() {{
+            var pts = [];
+            for (var lat = -80; lat <= 80; lat += 20) {{
+                for (var lon = 0; lon < 360; lon += 12) {{
+                    var latR = lat * Math.PI / 180;
+                    var lonR = lon * Math.PI / 180;
+                    pts.push({{
+                        x: rayon * Math.cos(latR) * Math.cos(lonR),
+                        y: rayon * Math.sin(latR),
+                        z: rayon * Math.cos(latR) * Math.sin(lonR)
+                    }});
+                }}
+            }}
+            return pts;
+        }}
+        var sphere = pointsSphere();
+
+        var satellites = [
+            {{ rayon: taille*0.46, vitesse: 0.018, phase: 0, inclinaison: 0.9, couleur: "#22D3EE" }},
+            {{ rayon: taille*0.42, vitesse: -0.013, phase: 2, inclinaison: -0.6, couleur: "#7FE7D8" }},
+            {{ rayon: taille*0.50, vitesse: 0.009, phase: 4, inclinaison: 0.3, couleur: "#BFFBF0" }}
+        ];
+
+        var angle = 0;
+        function dessiner() {{
+            ctx.clearRect(0, 0, taille, taille);
+            angle += 0.008;
+
+            ctx.strokeStyle = "rgba(93, 224, 198, 0.5)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (var i = 0; i < sphere.length; i++) {{
+                var p = sphere[i];
+                var cosA = Math.cos(angle), sinA = Math.sin(angle);
+                var x = p.x * cosA - p.z * sinA;
+                var z = p.x * sinA + p.z * cosA;
+                var y = p.y;
+                if (z > -rayon * 0.15) {{
+                    var echelle = 1 + z / (taille * 2);
+                    var px = centre + x * echelle;
+                    var py = centre - y * echelle;
+                    ctx.moveTo(px + 0.8, py);
+                    ctx.arc(px, py, 0.9, 0, 6.3);
+                }}
+            }}
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(centre, centre, rayon + 2, 0, 6.3);
+            ctx.strokeStyle = "rgba(191, 251, 240, 0.6)";
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+
+            for (var s = 0; s < satellites.length; s++) {{
+                var sat = satellites[s];
+                var t = angle * (sat.vitesse / 0.008) + sat.phase;
+                var sx = Math.cos(t) * sat.rayon;
+                var sz = Math.sin(t) * sat.rayon * sat.inclinaison;
+                var sy = Math.sin(t) * sat.rayon * (1 - Math.abs(sat.inclinaison)) * 0.5;
+                var echelleS = 1 + sz / (taille * 2);
+                var spx = centre + sx * echelleS;
+                var spy = centre - sy;
+                ctx.beginPath();
+                ctx.arc(spx, spy, 3 * echelleS, 0, 6.3);
+                ctx.fillStyle = sat.couleur;
+                ctx.shadowColor = sat.couleur;
+                ctx.shadowBlur = 8;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }}
+
+            requestAnimationFrame(dessiner);
+        }}
+        dessiner();
+    }})();
+    </script>
+    """
 def generer_audio(texte, chemin="reponse_audio.mp3"):
     async def _generer():
         communicate = edge_tts.Communicate(texte, "fr-FR-VivienneMultilingualNeural", rate="-5%")
