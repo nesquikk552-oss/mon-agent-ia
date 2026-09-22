@@ -151,66 +151,61 @@ st.markdown("""
 """, unsafe_allow_html=True)
 def globe_anime_html(taille=140):
     return f"""
-    <div style="display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto; perspective:600px;">
-    <div class="tumble_{taille}" style="width:100%; height:100%; transform-style:preserve-3d;">
-    <svg width="100%" height="100%" viewBox="0 0 380 380">
-    <defs>
-    <linearGradient id="sphG_{taille}" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" stop-color="#123A4D"/>
-    <stop offset="55%" stop-color="#0E5C68"/>
-    <stop offset="100%" stop-color="#062028"/>
-    </linearGradient>
-    <style>
-    .halo_{taille} {{ fill: none; stroke: #22D3EE; opacity: 0.12; }}
-    .orbit_{taille} {{ fill: none; stroke: #7FE7D8; stroke-width: 2.2; opacity: 0.85; }}
-    .orbitb_{taille} {{ fill: none; stroke: #22D3EE; stroke-width: 2.2; opacity: 0.85; }}
-    .spec_{taille} {{ fill: #BFFBF0; opacity: 0.16; }}
-    .mesh_{taille} {{ fill: none; stroke: #9FEFE0; stroke-width: 0.5; opacity: 0.35; }}
-    .grp-sphere_{taille} {{ transform-origin: 190px 190px; animation: rot-sphere_{taille} 14s linear infinite; }}
-    .grp-ring-a_{taille} {{ transform-origin: 190px 190px; animation: rot-ring-a_{taille} 10s linear infinite; }}
-    .grp-ring-b_{taille} {{ transform-origin: 190px 190px; animation: rot-ring-b_{taille} 15s linear infinite reverse; }}
-    @keyframes rot-sphere_{taille} {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(360deg); }} }}
-    @keyframes rot-ring-a_{taille} {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(360deg); }} }}
-    @keyframes rot-ring-b_{taille} {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(360deg); }} }}
-   
-    </style>
-    </defs>
-    <circle cx="190" cy="190" r="175" class="halo_{taille}" stroke-width="24"/>
-    <g class="grp-sphere_{taille}">
-    <circle cx="190" cy="190" r="115" fill="url(#sphG_{taille})" stroke="#5DE0C6" stroke-width="1"/>
-    <clipPath id="clipG_{taille}"><circle cx="190" cy="190" r="115"/></clipPath>
-    <g clip-path="url(#clipG_{taille})">
-    <ellipse cx="190" cy="190" rx="115" ry="22" class="mesh_{taille}"/>
-    <ellipse cx="190" cy="190" rx="115" ry="48" class="mesh_{taille}"/>
-    <ellipse cx="190" cy="190" rx="115" ry="76" class="mesh_{taille}"/>
-    <ellipse cx="190" cy="190" rx="22" ry="115" class="mesh_{taille}"/>
-    <ellipse cx="190" cy="190" rx="48" ry="115" class="mesh_{taille}"/>
-    <ellipse cx="190" cy="190" rx="76" ry="115" class="mesh_{taille}"/>
-    </g>
-    <ellipse cx="148" cy="138" rx="38" ry="20" class="spec_{taille}"/>
-    </g>
-    <g class="grp-ring-a_{taille}">
-    <ellipse cx="190" cy="190" rx="155" ry="46" class="orbit_{taille}" transform="rotate(-20 190 190)"/>
-    </g>
-    <g class="grp-ring-b_{taille}">
-    <ellipse cx="190" cy="190" rx="155" ry="46" class="orbitb_{taille}" transform="rotate(20 190 190)"/>
-    </g>
-    <circle cx="337" cy="150" r="3" fill="#7FE7D8"/>
-    <circle cx="48" cy="232" r="2.2" fill="#5DE0C6"/>
-    </svg>
-    </div>
+    <div style="position:relative; display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto; perspective:600px;">
+        <div class="tumble_{taille}" style="width:100%; height:100%; transform-style:preserve-3d; display:flex; align-items:center; justify-content:center;">
+            <img src="data:image/png;base64,{logo_b64}" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div class="orbite_{taille} orbite-a_{taille}"><div class="satellite_{taille} sat-a_{taille}"></div></div>
+        <div class="orbite_{taille} orbite-b_{taille}"><div class="satellite_{taille} sat-b_{taille}"></div></div>
+        <div class="orbite_{taille} orbite-c_{taille}"><div class="satellite_{taille} sat-c_{taille}"></div></div>
     </div>
     <style>
-     
     .tumble_{taille} {{
         animation: tumble_{taille} 22s ease-in-out infinite;
     }}
     @keyframes tumble_{taille} {{
         0%   {{ transform: rotateX(0deg) rotateY(0deg); }}
-        25%  {{ transform: rotateX(15deg) rotateY(90deg); }}
-        50%  {{ transform: rotateX(-10deg) rotateY(180deg); }}
-        75%  {{ transform: rotateX(12deg) rotateY(270deg); }}
-        100% {{ transform: rotateX(0deg) rotateY(360deg); }}
+        25%  {{ transform: rotateX(12deg) rotateY(20deg); }}
+        50%  {{ transform: rotateX(-8deg) rotateY(0deg); }}
+        75%  {{ transform: rotateX(12deg) rotateY(-20deg); }}
+        100% {{ transform: rotateX(0deg) rotateY(0deg); }}
+    }}
+    .orbite_{taille} {{
+        position: absolute;
+        top: 50%; left: 50%;
+        width: 0; height: 0;
+        transform-style: preserve-3d;
+    }}
+    .satellite_{taille} {{
+        position: absolute;
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #22D3EE;
+        box-shadow: 0 0 6px #22D3EE, 0 0 12px #22D3EEaa;
+    }}
+    .orbite-a_{taille} {{
+        animation: orbite-a_{taille} 6s linear infinite;
+    }}
+    .sat-a_{taille} {{ top: {int(taille*0.62)}px; left: 0; margin-left: -3px; }}
+    @keyframes orbite-a_{taille} {{
+        from {{ transform: rotate(0deg) rotateX(65deg); }}
+        to   {{ transform: rotate(360deg) rotateX(65deg); }}
+    }}
+    .orbite-b_{taille} {{
+        animation: orbite-b_{taille} 9s linear infinite reverse;
+    }}
+    .sat-b_{taille} {{ top: {int(taille*0.58)}px; left: 0; margin-left: -3px; background:#7FE7D8; box-shadow: 0 0 6px #7FE7D8, 0 0 12px #7FE7D8aa; }}
+    @keyframes orbite-b_{taille} {{
+        from {{ transform: rotate(0deg) rotateX(-50deg) rotateZ(30deg); }}
+        to   {{ transform: rotate(360deg) rotateX(-50deg) rotateZ(30deg); }}
+    }}
+    .orbite-c_{taille} {{
+        animation: orbite-c_{taille} 13s linear infinite;
+    }}
+    .sat-c_{taille} {{ top: {int(taille*0.68)}px; left: 0; margin-left: -2.5px; width:5px; height:5px; background:#BFFBF0; box-shadow: 0 0 5px #BFFBF0; }}
+    @keyframes orbite-c_{taille} {{
+        from {{ transform: rotate(0deg) rotateX(20deg) rotateZ(-40deg); }}
+        to   {{ transform: rotate(360deg) rotateX(20deg) rotateZ(-40deg); }}
     }}
     </style>
     """
