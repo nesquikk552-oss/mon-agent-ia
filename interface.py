@@ -156,10 +156,10 @@ def globe_anime_html(taille=160):
     </div>
     <script>
     (function() {{
-        var canvas = document.getElementById("globe_{taille}");
-        var ctx = canvas.getContext("2d");
-        var taille = {taille};
-        var centre = taille / 2;
+        var canvas = document.getElementById("soleil_{taille}");
+var ctx = canvas.getContext("2d");
+var taille = {taille} * 0.72;
+var centre = canvas.width / 2;
         var rayon = taille * 0.32;
 
         function pointsSphere() {{
