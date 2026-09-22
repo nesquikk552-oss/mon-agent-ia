@@ -239,6 +239,121 @@ def globe_anime_html(taille=160):
     }})();
     </script>
     """
+def globe_soleil_html(taille=260):
+    return f"""
+    <div style="display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto;">
+        <canvas id="soleil_{taille}" width="{taille}" height="{taille}"></canvas>
+    </div>
+    <script>
+    (function() {{
+        var canvas = document.getElementById("soleil_{taille}");
+        var ctx = canvas.getContext("2d");
+        var taille = {taille};
+        var centre = taille / 2;
+        var rayonSoleil = taille * 0.16;
+
+        function pointsSphere() {{
+            var pts = [];
+            for (var lat = -80; lat <= 80; lat += 18) {{
+                for (var lon = 0; lon < 360; lon += 14) {{
+                    var latR = lat * Math.PI / 180;
+                    var lonR = lon * Math.PI / 180;
+                    pts.push({{
+                        x: rayonSoleil * Math.cos(latR) * Math.cos(lonR),
+                        y: rayonSoleil * Math.sin(latR),
+                        z: rayonSoleil * Math.cos(latR) * Math.sin(lonR)
+                    }});
+                }}
+            }}
+            return pts;
+        }}
+        var sphere = pointsSphere();
+
+        var anneaux = [
+            {{ rayon: taille*0.24, inclinaison: 0.15, vitesse: 0.022, couleur: "#22D3EE", epaisseur: 1.4 }},
+            {{ rayon: taille*0.31, inclinaison: 0.55, vitesse: -0.016, couleur: "#7FE7D8", epaisseur: 1.4 }},
+            {{ rayon: taille*0.38, inclinaison: -0.35, vitesse: 0.011, couleur: "#5DE0C6", epaisseur: 1.2 }},
+            {{ rayon: taille*0.44, inclinaison: 0.75, vitesse: -0.008, couleur: "#BFFBF0", epaisseur: 1.2 }},
+            {{ rayon: taille*0.49, inclinaison: -0.9, vitesse: 0.006, couleur: "#22D3EE", epaisseur: 1 }}
+        ];
+
+        function projeter(x, y, z) {{
+            var echelle = 1 + z / (taille * 2.2);
+            return {{ x: centre + x * echelle, y: centre - y * echelle, echelle: echelle, z: z }};
+        }}
+
+        var angleSphere = 0;
+        var anglesAnneaux = anneaux.map(function() {{ return 0; }});
+
+        function dessinerAnneau(a, angleRot) {{
+            var pts = [];
+            for (var t = 0; t <= 360; t += 4) {{
+                var r = t * Math.PI / 180;
+                var bx = a.rayon * Math.cos(r);
+                var bz = a.rayon * Math.sin(r);
+                var by = 0;
+                var cosI = Math.cos(a.inclinaison), sinI = Math.sin(a.inclinaison);
+                var y1 = by * cosI - bz * sinI;
+                var z1 = by * sinI + bz * cosI;
+                var x1 = bx;
+                var cosR = Math.cos(angleRot), sinR = Math.sin(angleRot);
+                var x2 = x1 * cosR - z1 * sinR;
+                var z2 = x1 * sinR + z1 * cosR;
+                pts.push(projeter(x2, y1, z2));
+            }}
+            ctx.beginPath();
+            ctx.strokeStyle = a.couleur;
+            ctx.lineWidth = a.epaisseur;
+            ctx.globalAlpha = 0.75;
+            for (var i = 0; i < pts.length; i++) {{
+                if (i === 0) ctx.moveTo(pts[i].x, pts[i].y);
+                else ctx.lineTo(pts[i].x, pts[i].y);
+            }}
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }}
+
+        function dessiner() {{
+            ctx.clearRect(0, 0, taille, taille);
+            angleSphere += 0.01;
+
+            for (var i = 0; i < anneaux.length; i++) {{
+                anglesAnneaux[i] += anneaux[i].vitesse;
+                dessinerAnneau(anneaux[i], anglesAnneaux[i]);
+            }}
+
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(93, 224, 198, 0.6)";
+            ctx.lineWidth = 1;
+            for (var j = 0; j < sphere.length; j++) {{
+                var p = sphere[j];
+                var cosA = Math.cos(angleSphere), sinA = Math.sin(angleSphere);
+                var x = p.x * cosA - p.z * sinA;
+                var z = p.x * sinA + p.z * cosA;
+                if (z > -rayonSoleil * 0.1) {{
+                    var proj = projeter(x, p.y, z);
+                    ctx.moveTo(proj.x + 0.8, proj.y);
+                    ctx.arc(proj.x, proj.y, 0.9, 0, 6.3);
+                }}
+            }}
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(centre, centre, rayonSoleil + 1, 0, 6.3);
+            ctx.strokeStyle = "rgba(191, 251, 240, 0.7)";
+            ctx.lineWidth = 1.6;
+            ctx.stroke();
+            ctx.shadowColor = "#22D3EE";
+            ctx.shadowBlur = 14;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            requestAnimationFrame(dessiner);
+        }}
+        dessiner();
+    }})();
+    </script>
+    """
 def generer_audio(texte, chemin="reponse_audio.mp3"):
     async def _generer():
         communicate = edge_tts.Communicate(texte, "fr-FR-VivienneMultilingualNeural", rate="-5%")
@@ -381,20 +496,13 @@ with st.sidebar:
 mode_equipe_actif = mode == "Équipe (recherche + rédaction + flashcards)"
 
 if mode_vocal:
-    logo_vocal = f"<img src='data:image/png;base64,{logo_b64}' width='70'>" if logo_b64 else "<span class='logo-vocal'>🌐</span>"
-    st.markdown(f"""
-    <div class='zone-vocale'>
-        <div class='anneaux-hologramme'>
-            <div class='anneau'></div>
-            <div class='anneau'></div>
-            <div class='anneau'></div>
-            <div class='logo-vocal actif' style='position:absolute; inset:0; display:flex; align-items:center; justify-content:center;'>{logo_vocal}</div>
-        </div>
-        <div class='sous-titre' style='color:#22D3EE; letter-spacing:3px; font-size:12px; text-transform:uppercase;'>Mode vocal</div>
-        <h1 style='color:#E5E9F0;'>Parlez à Christiane</h1>
+    st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
+    components.html(globe_soleil_html(260), height=280)
+    st.markdown("""
+        <div class='sous-titre' style='color:#22D3EE; letter-spacing:3px; font-size:12px; text-transform:uppercase; text-align:center;'>Mode vocal</div>
+        <h1 style='color:#E5E9F0; text-align:center;'>Parlez à Christiane</h1>
     </div>
     """, unsafe_allow_html=True)
-
     col_g, col_c, col_d = st.columns([1, 1, 1])
     with col_c:
         question_vocale_seule = speech_to_text(
