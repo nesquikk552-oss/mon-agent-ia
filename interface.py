@@ -28,6 +28,127 @@ def charger_logo_base64(chemin="logo.png"):
 carte_monde_b64 = charger_carte_monde_base64()
 
 logo_b64 = charger_logo_base64()
+st.set_page_config(page_title="Christiane", page_icon="logo.png" if os.path.exists("logo.png") else "🌐", layout="wide")
+
+st.markdown("""
+<style>
+.stApp {
+    background: radial-gradient(circle at 50% 20%, #131A2A 0%, #0B0F1A 55%, #060810 100%);
+}
+.fond-hud {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: radial-gradient(#22D3EE22 1px, transparent 1px);
+    background-size: 22px 22px;
+}
+.carte-monde-fond {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 650px;
+    max-width: 85vw;
+    opacity: 0.07;
+    z-index: 0;
+    pointer-events: none;
+    filter: grayscale(1) sepia(1) hue-rotate(150deg) saturate(3);
+    -webkit-mask-image: radial-gradient(circle, black 40%, transparent 70%);
+    mask-image: radial-gradient(circle, black 40%, transparent 70%);
+}
+.logo-fond {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 480px;
+    opacity: 0.05;
+    z-index: 0;
+    pointer-events: none;
+}
+.carte-connexion {
+    position: relative;
+    z-index: 1;
+    background: #0E1420cc;
+    border: 1px solid #22D3EE55;
+    border-radius: 4px;
+    padding: 40px 34px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 0 30px #22D3EE22;
+}
+.carte-connexion::before, .carte-connexion::after {
+    content: "";
+    position: absolute;
+    width: 18px; height: 18px;
+    border: 2px solid #22D3EE;
+    opacity: 0.8;
+}
+.carte-connexion::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+.carte-connexion::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+.logo-globe {
+    font-size: 34px;
+    text-shadow: 0 0 12px #22D3EE, 0 0 24px #22D3EE88;
+}
+[data-testid="stSidebar"] { background-color: #0E1420; }
+.sidebar-titre {
+    display:flex; align-items:center; gap:8px;
+    font-size: 20px; font-weight:600; color:#E5E9F0;
+    margin-bottom: 18px;
+}
+.sidebar-section {
+    text-transform: uppercase; font-size: 11px; letter-spacing: 1.5px;
+    color: #5E6B85; margin: 22px 0 8px 0;
+}
+.historique-item {
+    font-size: 13px; color: #9AA6BC; padding: 6px 0;
+    border-bottom: 1px solid #1C2333; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+}
+.hero-accueil { text-align: center; margin: 10px 0 20px 0; }
+.hero-accueil .sous-titre {
+    text-transform: uppercase; letter-spacing: 3px; font-size: 12px;
+    color: #22D3EE; margin-top: 14px; margin-bottom: 6px;
+}
+.hero-accueil h1 { font-size: 30px; color: #E5E9F0; margin: 0; }
+.composer {
+    background: #131A2A; border: 1px solid #22D3EE33;
+    border-radius: 18px; padding: 10px 16px; margin: 10px 0 26px 0;
+}
+.carte-suggestion {
+    background: #131A2A; border: 1px solid #22D3EE22; border-radius: 12px;
+    padding: 16px; text-align:left; margin-bottom: 8px;
+}
+.carte-suggestion .titre { color:#22D3EE; font-weight:600; font-size:14px; margin-bottom:4px; }
+.carte-suggestion .desc { color:#7C8AA5; font-size:12px; }
+.bulle-utilisateur {
+    background-color: #22D3EE; color: #0B0F1A; padding: 12px 16px;
+    border-radius: 14px 14px 4px 14px; margin: 8px 0; max-width: 80%;
+    margin-left: auto; font-weight: 500;
+}
+.bulle-christiane {
+    background-color: #131A2A; color: #E5E9F0; border: 1px solid #22D3EE22;
+    padding: 12px 16px; border-radius: 14px 14px 14px 4px; margin: 8px 0;
+    max-width: 80%; margin-right: auto;
+}
+.zone-vocale { text-align: center; padding: 40px 20px; max-width: 600px; margin: 0 auto; }
+.zone-vocale .logo-vocal { font-size: 70px; text-shadow: 0 0 20px #22D3EE, 0 0 40px #22D3EE88; margin-bottom: 10px; }
+.logo-vocal.actif { animation: pulsation-hologramme 1.2s ease-in-out infinite; }
+@keyframes pulsation-hologramme {
+    0%, 100% { text-shadow: 0 0 20px #22D3EE, 0 0 40px #22D3EE88; transform: scale(1); }
+    50% { text-shadow: 0 0 35px #22D3EE, 0 0 70px #22D3EEcc; transform: scale(1.05); }
+}
+.anneaux-hologramme { position: relative; width: 120px; height: 120px; margin: 0 auto 16px; }
+.anneaux-hologramme .anneau { position: absolute; inset: 0; border: 1.5px solid #22D3EE; border-radius: 50%; opacity: 0; animation: expansion-anneau 2s ease-out infinite; }
+.anneaux-hologramme .anneau:nth-child(2) { animation-delay: 0.6s; }
+.anneaux-hologramme .anneau:nth-child(3) { animation-delay: 1.2s; }
+@keyframes expansion-anneau {
+    0% { transform: scale(0.6); opacity: 0.7; }
+    100% { transform: scale(1.4); opacity: 0; }
+}
+.reponse-vocale { background: #131A2A; border: 1px solid #22D3EE33; border-radius: 14px; padding: 24px; margin-top: 20px; font-size: 18px; line-height: 1.6; text-align: left; }
+.question-vocale-affichee { color: #7C8AA5; font-size: 14px; margin-bottom: 10px; text-align: left; }
+</style>
+""", unsafe_allow_html=True)
 def globe_anime_html(taille=140):
     return f"""
     <div style="display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto; perspective:600px;">
@@ -51,6 +172,7 @@ def globe_anime_html(taille=140):
     @keyframes rot-sphere_{taille} {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(360deg); }} }}
     @keyframes rot-ring-a_{taille} {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(360deg); }} }}
     @keyframes rot-ring-b_{taille} {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(360deg); }} }}
+   
     </style>
     </defs>
     <circle cx="190" cy="190" r="175" class="halo_{taille}" stroke-width="24"/>
@@ -79,6 +201,7 @@ def globe_anime_html(taille=140):
     </div>
     </div>
     <style>
+     
     .tumble_{taille} {{
         animation: tumble_{taille} 22s ease-in-out infinite;
     }}
