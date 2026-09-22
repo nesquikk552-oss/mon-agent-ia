@@ -270,11 +270,11 @@ def globe_soleil_html(taille=260):
         var sphere = pointsSphere();
 
        var anneaux = [
-    {{ rayon: taille*0.30, inclinaison: 0.15, vitesse: 0.022, couleur: "#22D3EE", epaisseur: 2.4 }},
-    {{ rayon: taille*0.39, inclinaison: 0.55, vitesse: -0.016, couleur: "#7FE7D8", epaisseur: 2.4 }},
-    {{ rayon: taille*0.47, inclinaison: -0.35, vitesse: 0.011, couleur: "#5DE0C6", epaisseur: 2.2 }},
-    {{ rayon: taille*0.55, inclinaison: 0.75, vitesse: -0.008, couleur: "#BFFBF0", epaisseur: 2.2 }},
-    {{ rayon: taille*0.62, inclinaison: -0.9, vitesse: 0.006, couleur: "#22D3EE", epaisseur: 2 }}
+    {{ rayon: taille*0.30, inclinaison: 0.15, vitesse: 0.022, couleur: "#22D3EE", couleurSat: "#FF6B9D", epaisseur: 2.4 }},
+    {{ rayon: taille*0.39, inclinaison: 0.55, vitesse: -0.016, couleur: "#7FE7D8", couleurSat: "#FFD166", epaisseur: 2.4 }},
+    {{ rayon: taille*0.47, inclinaison: -0.35, vitesse: 0.011, couleur: "#5DE0C6", couleurSat: "#C77DFF", epaisseur: 2.2 }},
+    {{ rayon: taille*0.55, inclinaison: 0.75, vitesse: -0.008, couleur: "#BFFBF0", couleurSat: "#FF8C42", epaisseur: 2.2 }},
+    {{ rayon: taille*0.62, inclinaison: -0.9, vitesse: 0.006, couleur: "#22D3EE", couleurSat: "#4CC9F0", epaisseur: 2 }}
 ];
         function projeter(x, y, z) {{
             var echelle = 1 + z / (taille * 2.2);
@@ -285,32 +285,45 @@ def globe_soleil_html(taille=260):
         var anglesAnneaux = anneaux.map(function() {{ return 0; }});
 
         function dessinerAnneau(a, angleRot) {{
-            var pts = [];
-            for (var t = 0; t <= 360; t += 4) {{
-                var r = t * Math.PI / 180;
-                var bx = a.rayon * Math.cos(r);
-                var bz = a.rayon * Math.sin(r);
-                var by = 0;
-                var cosI = Math.cos(a.inclinaison), sinI = Math.sin(a.inclinaison);
-                var y1 = by * cosI - bz * sinI;
-                var z1 = by * sinI + bz * cosI;
-                var x1 = bx;
-                var cosR = Math.cos(angleRot), sinR = Math.sin(angleRot);
-                var x2 = x1 * cosR - z1 * sinR;
-                var z2 = x1 * sinR + z1 * cosR;
-                pts.push(projeter(x2, y1, z2));
-            }}
-            ctx.beginPath();
-            ctx.strokeStyle = a.couleur;
-            ctx.lineWidth = a.epaisseur;
-            ctx.globalAlpha = 0.75;
-            for (var i = 0; i < pts.length; i++) {{
-                if (i === 0) ctx.moveTo(pts[i].x, pts[i].y);
-                else ctx.lineTo(pts[i].x, pts[i].y);
-            }}
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-        }}
+    var pts = [];
+    var pointSatellite = null;
+    for (var t = 0; t <= 360; t += 4) {{
+        var r = t * Math.PI / 180;
+        var bx = a.rayon * Math.cos(r);
+        var bz = a.rayon * Math.sin(r);
+        var by = 0;
+        var cosI = Math.cos(a.inclinaison), sinI = Math.sin(a.inclinaison);
+        var y1 = by * cosI - bz * sinI;
+        var z1 = by * sinI + bz * cosI;
+        var x1 = bx;
+        var cosR = Math.cos(angleRot), sinR = Math.sin(angleRot);
+        var x2 = x1 * cosR - z1 * sinR;
+        var z2 = x1 * sinR + z1 * cosR;
+        var proj = projeter(x2, y1, z2);
+        pts.push(proj);
+        if (t === 0) pointSatellite = proj;
+    }}
+    ctx.beginPath();
+    ctx.strokeStyle = a.couleur;
+    ctx.lineWidth = a.epaisseur;
+    ctx.globalAlpha = 0.75;
+    for (var i = 0; i < pts.length; i++) {{
+        if (i === 0) ctx.moveTo(pts[i].x, pts[i].y);
+        else ctx.lineTo(pts[i].x, pts[i].y);
+    }}
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    if (pointSatellite) {{
+    ctx.beginPath();
+    ctx.arc(pointSatellite.x, pointSatellite.y, 3.2 * pointSatellite.echelle, 0, 6.3);
+    ctx.fillStyle = a.couleurSat;
+    ctx.shadowColor = a.couleurSat;
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+}}
+}}
 
         function dessiner() {{
             ctx.clearRect(0, 0, taille, taille);
