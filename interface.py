@@ -269,14 +269,13 @@ def globe_soleil_html(taille=260):
         }}
         var sphere = pointsSphere();
 
-        var anneaux = [
-            {{ rayon: taille*0.24, inclinaison: 0.15, vitesse: 0.022, couleur: "#22D3EE", epaisseur: 1.4 }},
-            {{ rayon: taille*0.31, inclinaison: 0.55, vitesse: -0.016, couleur: "#7FE7D8", epaisseur: 1.4 }},
-            {{ rayon: taille*0.38, inclinaison: -0.35, vitesse: 0.011, couleur: "#5DE0C6", epaisseur: 1.2 }},
-            {{ rayon: taille*0.44, inclinaison: 0.75, vitesse: -0.008, couleur: "#BFFBF0", epaisseur: 1.2 }},
-            {{ rayon: taille*0.49, inclinaison: -0.9, vitesse: 0.006, couleur: "#22D3EE", epaisseur: 1 }}
-        ];
-
+       var anneaux = [
+    {{ rayon: taille*0.30, inclinaison: 0.15, vitesse: 0.022, couleur: "#22D3EE", epaisseur: 2.4 }},
+    {{ rayon: taille*0.39, inclinaison: 0.55, vitesse: -0.016, couleur: "#7FE7D8", epaisseur: 2.4 }},
+    {{ rayon: taille*0.47, inclinaison: -0.35, vitesse: 0.011, couleur: "#5DE0C6", epaisseur: 2.2 }},
+    {{ rayon: taille*0.55, inclinaison: 0.75, vitesse: -0.008, couleur: "#BFFBF0", epaisseur: 2.2 }},
+    {{ rayon: taille*0.62, inclinaison: -0.9, vitesse: 0.006, couleur: "#22D3EE", epaisseur: 2 }}
+];
         function projeter(x, y, z) {{
             var echelle = 1 + z / (taille * 2.2);
             return {{ x: centre + x * echelle, y: centre - y * echelle, echelle: echelle, z: z }};
@@ -497,7 +496,7 @@ mode_equipe_actif = mode == "Équipe (recherche + rédaction + flashcards)"
 
 if mode_vocal:
     st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
-    components.html(globe_soleil_html(260), height=280)
+    components.html(globe_soleil_html(300), height=320)
     st.markdown("""
         <div class='sous-titre' style='color:#22D3EE; letter-spacing:3px; font-size:12px; text-transform:uppercase; text-align:center;'>Mode vocal</div>
         <h1 style='color:#E5E9F0; text-align:center;'>Parlez à Christiane</h1>
