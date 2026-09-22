@@ -151,6 +151,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 def globe_anime_html(taille=160):
     return f"""
+    <style>html, body {{ background: transparent !important; margin:0; padding:0; }}</style>
     <div style="display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto;">
         <canvas id="globe_{taille}" width="{taille}" height="{taille}"></canvas>
     </div>
@@ -158,8 +159,8 @@ def globe_anime_html(taille=160):
     (function() {{
         var canvas = document.getElementById("globe_{taille}");
 var ctx = canvas.getContext("2d");
-var taille = {taille} * 0.72;
-var centre = canvas.width / 2;
+var taille = {taille};
+var centre = taille / 2;
         var rayon = taille * 0.32;
 
         function pointsSphere() {{
@@ -241,15 +242,16 @@ var centre = canvas.width / 2;
     """
 def globe_soleil_html(taille=260):
     return f"""
+    <style>html, body {{ background: transparent !important; margin:0; padding:0; }}</style>
     <div style="display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto;">
         <canvas id="soleil_{taille}" width="{taille}" height="{taille}"></canvas>
     </div>
     <script>
     (function() {{
         var canvas = document.getElementById("soleil_{taille}");
-        var ctx = canvas.getContext("2d");
-        var taille = {taille};
-        var centre = taille / 2;
+var ctx = canvas.getContext("2d");
+var taille = {taille} * 0.65;
+var centre = canvas.width / 2;
         var rayonSoleil = taille * 0.16;
 
         function pointsSphere() {{
