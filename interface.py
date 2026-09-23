@@ -188,7 +188,7 @@ var centre = taille / 2;
 
         var angle = 0;
         function dessiner() {{
-            ctx.clearRect(0, 0, taille, taille);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             angle += 0.008;
 
             ctx.strokeStyle = "rgba(93, 224, 198, 0.5)";
