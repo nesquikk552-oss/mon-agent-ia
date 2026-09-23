@@ -272,11 +272,11 @@ var centre = canvas.width / 2;
         var sphere = pointsSphere();
 
        var anneaux = [
-    {{ rayon: taille*0.30, inclinaison: 0.15, vitesse: 0.022, couleur: "#22D3EE", couleurSat: "#FF6B9D", epaisseur: 2.4 }},
-    {{ rayon: taille*0.39, inclinaison: 0.55, vitesse: -0.016, couleur: "#7FE7D8", couleurSat: "#FFD166", epaisseur: 2.4 }},
-    {{ rayon: taille*0.47, inclinaison: -0.35, vitesse: 0.011, couleur: "#5DE0C6", couleurSat: "#C77DFF", epaisseur: 2.2 }},
-    {{ rayon: taille*0.55, inclinaison: 0.75, vitesse: -0.008, couleur: "#BFFBF0", couleurSat: "#FF8C42", epaisseur: 2.2 }},
-    {{ rayon: taille*0.62, inclinaison: -0.9, vitesse: 0.006, couleur: "#22D3EE", couleurSat: "#4CC9F0", epaisseur: 2 }}
+    {{ rayon: taille*0.42, inclinaison: 0.15, vitesse: 0.022, couleur: "#22D3EE", couleurSat: "#FF6B9D", epaisseur: 9 }},
+    {{ rayon: taille*0.56, inclinaison: 0.55, vitesse: -0.016, couleur: "#7FE7D8", couleurSat: "#FFD166", epaisseur: 8.5 }},
+    {{ rayon: taille*0.70, inclinaison: -0.35, vitesse: 0.011, couleur: "#5DE0C6", couleurSat: "#C77DFF", epaisseur: 8 }},
+    {{ rayon: taille*0.84, inclinaison: 0.75, vitesse: -0.008, couleur: "#BFFBF0", couleurSat: "#FF8C42", epaisseur: 7.5 }},
+    {{ rayon: taille*0.98, inclinaison: -0.9, vitesse: 0.006, couleur: "#22D3EE", couleurSat: "#4CC9F0", epaisseur: 7 }}
 ];
         function projeter(x, y, z) {{
             var echelle = 1 + z / (taille * 2.2);
@@ -327,8 +327,8 @@ var centre = canvas.width / 2;
 }}
 }}
 
-        function dessiner() {{
-            ctx.clearRect(0, 0, taille, taille);
+       function dessiner() {{
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             angleSphere += 0.01;
 
             for (var i = 0; i < anneaux.length; i++) {{
@@ -352,16 +352,16 @@ var centre = canvas.width / 2;
             }}
             ctx.stroke();
 
+            var pulsation = 12 + Math.sin(angleSphere * 2.5) * 8;
             ctx.beginPath();
             ctx.arc(centre, centre, rayonSoleil + 1, 0, 6.3);
             ctx.strokeStyle = "rgba(191, 251, 240, 0.7)";
             ctx.lineWidth = 1.6;
             ctx.stroke();
             ctx.shadowColor = "#22D3EE";
-            ctx.shadowBlur = 14;
+            ctx.shadowBlur = pulsation;
             ctx.stroke();
             ctx.shadowBlur = 0;
-
             requestAnimationFrame(dessiner);
         }}
         dessiner();
@@ -494,29 +494,35 @@ with st.sidebar:
         st.rerun()
     st.markdown("<div class='sidebar-section'>Mode</div>", unsafe_allow_html=True)
     mode_vocal = st.toggle("🎙️ Mode vocal uniquement", key="mode_vocal")
-    st.markdown("<div class='sidebar-section'>Réglages</div>", unsafe_allow_html=True)
-    mode = st.radio("Mode", ["Normal", "Équipe (recherche + rédaction + flashcards)"], label_visibility="collapsed")
-    autoriser_actions = st.checkbox("Autoriser les actions sensibles")
-    fichier_uploade = st.file_uploader("Déposer un PDF", type="pdf")
-    if fichier_uploade:
+    if "mode_vocal_precedent" not in st.session_state:
+        st.session_state.mode_vocal_precedent = False
+vient_dactiver_vocal = mode_vocal and not st.session_state.mode_vocal_precedent
+st.session_state.mode_vocal_precedent = mode_vocal
+st.markdown("<div class='sidebar-section'>Réglages</div>", unsafe_allow_html=True)
+mode = st.radio("Mode", ["Normal", "Équipe (recherche + rédaction + flashcards)"], label_visibility="collapsed")
+autoriser_actions = st.checkbox("Autoriser les actions sensibles")
+fichier_uploade = st.file_uploader("Déposer un PDF", type="pdf")
+if fichier_uploade:
         with open(f"upload_{fichier_uploade.name}", "wb") as f:
             f.write(fichier_uploade.getbuffer())
         st.success(f"{fichier_uploade.name} prêt.")
 
-    st.markdown("<div class='sidebar-section'>Historique récent</div>", unsafe_allow_html=True)
-    for echange in list(reversed(st.session_state.historique))[:6]:
+st.markdown("<div class='sidebar-section'>Historique récent</div>", unsafe_allow_html=True)
+for echange in list(reversed(st.session_state.historique))[:6]:
         st.markdown(f"<div class='historique-item'>{echange['question']}</div>", unsafe_allow_html=True)
 
 mode_equipe_actif = mode == "Équipe (recherche + rédaction + flashcards)"
-
 if mode_vocal:
+    if vient_dactiver_vocal:
+        heure_actuelle = dt.datetime.now().hour
+        salutation = "Bonjour" if 5 <= heure_actuelle < 18 else "Bonsoir"
+        generer_audio(f"{salutation} Monsieur, que puis-je faire pour vous ?", chemin="salutation_audio.mp3")
+        st.audio("salutation_audio.mp3", autoplay=True)
     st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
-    components.html(globe_soleil_html(400), height=420)
-    st.markdown("""
-        <div class='sous-titre' style='color:#22D3EE; letter-spacing:3px; font-size:12px; text-transform:uppercase; text-align:center;'>Mode vocal</div>
-        <h1 style='color:#E5E9F0; text-align:center;'>Parlez à Christiane</h1>
-    </div>
-    """, unsafe_allow_html=True)
+
+    st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
+    components.html(globe_soleil_html(620), height=640)
+    st.markdown("</div>", unsafe_allow_html=True)
     col_g, col_c, col_d = st.columns([1, 1, 1])
     with col_c:
         question_vocale_seule = speech_to_text(
