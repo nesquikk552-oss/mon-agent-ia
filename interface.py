@@ -250,7 +250,7 @@ def globe_soleil_html(taille=260):
     (function() {{
         var canvas = document.getElementById("soleil_{taille}");
 var ctx = canvas.getContext("2d");
-var taille = {taille} * 0.65;
+var taille = {taille} * 0.40;
 var centre = canvas.width / 2;
         var rayonSoleil = taille * 0.16;
 
@@ -498,15 +498,18 @@ with st.sidebar:
         st.session_state.mode_vocal_precedent = False
 vient_dactiver_vocal = mode_vocal and not st.session_state.mode_vocal_precedent
 st.session_state.mode_vocal_precedent = mode_vocal
-st.markdown("<div class='sidebar-section'>Réglages</div>", unsafe_allow_html=True)
-mode = st.radio("Mode", ["Normal", "Équipe (recherche + rédaction + flashcards)"], label_visibility="collapsed")
-autoriser_actions = st.checkbox("Autoriser les actions sensibles")
-fichier_uploade = st.file_uploader("Déposer un PDF", type="pdf")
-if fichier_uploade:
-        with open(f"upload_{fichier_uploade.name}", "wb") as f:
-            f.write(fichier_uploade.getbuffer())
-        st.success(f"{fichier_uploade.name} prêt.")
-
+if not mode_vocal:
+        st.markdown("<div class='sidebar-section'>Réglages</div>", unsafe_allow_html=True)
+        mode = st.radio("Mode", ["Normal", "Équipe (recherche + rédaction + flashcards)"], label_visibility="collapsed")
+        autoriser_actions = st.checkbox("Autoriser les actions sensibles")
+        fichier_uploade = st.file_uploader("Déposer un PDF", type="pdf")
+        if fichier_uploade:
+            with open(f"upload_{fichier_uploade.name}", "wb") as f:
+                f.write(fichier_uploade.getbuffer())
+            st.success(f"{fichier_uploade.name} prêt.")
+else:
+        mode = "Normal"
+        autoriser_actions = False
 st.markdown("<div class='sidebar-section'>Historique récent</div>", unsafe_allow_html=True)
 for echange in list(reversed(st.session_state.historique))[:6]:
         st.markdown(f"<div class='historique-item'>{echange['question']}</div>", unsafe_allow_html=True)
@@ -521,7 +524,7 @@ if mode_vocal:
     st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
 
     st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
-    components.html(globe_soleil_html(620), height=640)
+    components.html(globe_soleil_html(600), height=620)
     st.markdown("</div>", unsafe_allow_html=True)
     col_g, col_c, col_d = st.columns([1, 1, 1])
     with col_c:
