@@ -510,10 +510,10 @@ if not mode_vocal:
 else:
         mode = "Normal"
         autoriser_actions = False
-st.markdown("<div class='sidebar-section'>Historique récent</div>", unsafe_allow_html=True)
-for echange in list(reversed(st.session_state.historique))[:6]:
-        st.markdown(f"<div class='historique-item'>{echange['question']}</div>", unsafe_allow_html=True)
-
+if not mode_vocal:
+        st.markdown("<div class='sidebar-section'>Historique récent</div>", unsafe_allow_html=True)
+        for echange in list(reversed(st.session_state.historique))[:6]:
+            st.markdown(f"<div class='historique-item'>{echange['question']}</div>", unsafe_allow_html=True)
 mode_equipe_actif = mode == "Équipe (recherche + rédaction + flashcards)"
 if mode_vocal:
     if vient_dactiver_vocal:
