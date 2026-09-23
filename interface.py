@@ -511,7 +511,7 @@ mode_equipe_actif = mode == "Équipe (recherche + rédaction + flashcards)"
 
 if mode_vocal:
     st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
-    components.html(globe_soleil_html(300), height=320)
+    components.html(globe_soleil_html(340), height=360)
     st.markdown("""
         <div class='sous-titre' style='color:#22D3EE; letter-spacing:3px; font-size:12px; text-transform:uppercase; text-align:center;'>Mode vocal</div>
         <h1 style='color:#E5E9F0; text-align:center;'>Parlez à Christiane</h1>
