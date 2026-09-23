@@ -240,7 +240,7 @@ var centre = taille / 2;
     }})();
     </script>
     """
-def globe_soleil_html(taille=260):
+def globe_soleil_html(taille=260, parlant=False):
     return f"""
     <style>html, body {{ background: transparent !important; margin:0; padding:0; }}</style>
     <div style="display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto;">
@@ -273,10 +273,10 @@ var centre = canvas.width / 2;
 
        var anneaux = [
     {{ rayon: taille*0.42, inclinaison: 0.15, vitesse: 0.022, couleur: "#22D3EE", couleurSat: "#FF6B9D", epaisseur: 9 }},
-    {{ rayon: taille*0.56, inclinaison: 0.55, vitesse: -0.016, couleur: "#7FE7D8", couleurSat: "#FFD166", epaisseur: 8.5 }},
-    {{ rayon: taille*0.70, inclinaison: -0.35, vitesse: 0.011, couleur: "#5DE0C6", couleurSat: "#C77DFF", epaisseur: 8 }},
-    {{ rayon: taille*0.84, inclinaison: 0.75, vitesse: -0.008, couleur: "#BFFBF0", couleurSat: "#FF8C42", epaisseur: 7.5 }},
-    {{ rayon: taille*0.98, inclinaison: -0.9, vitesse: 0.006, couleur: "#22D3EE", couleurSat: "#4CC9F0", epaisseur: 7 }}
+    {{ rayon: taille*0.52, inclinaison: 0.55, vitesse: -0.016, couleur: "#7FE7D8", couleurSat: "#FFD166", epaisseur: 8.5 }},
+    {{ rayon: taille*0.62, inclinaison: -0.35, vitesse: 0.011, couleur: "#5DE0C6", couleurSat: "#C77DFF", epaisseur: 8 }},
+    {{ rayon: taille*0.72, inclinaison: 0.75, vitesse: -0.008, couleur: "#BFFBF0", couleurSat: "#FF8C42", epaisseur: 7.5 }},
+    {{ rayon: taille*0.82, inclinaison: -0.9, vitesse: 0.006, couleur: "#22D3EE", couleurSat: "#4CC9F0", epaisseur: 7 }}
 ];
         function projeter(x, y, z) {{
             var echelle = 1 + z / (taille * 2.2);
@@ -352,7 +352,8 @@ var centre = canvas.width / 2;
             }}
             ctx.stroke();
 
-            var pulsation = 12 + Math.sin(angleSphere * 2.5) * 8;
+            var intensite = {str(parlant).lower()};
+            var pulsation = intensite ? (25 + Math.sin(angleSphere * 6) * 20) : (12 + Math.sin(angleSphere * 2.5) * 8);
             ctx.beginPath();
             ctx.arc(centre, centre, rayonSoleil + 1, 0, 6.3);
             ctx.strokeStyle = "rgba(191, 251, 240, 0.7)";
@@ -524,7 +525,7 @@ if mode_vocal:
     st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
 
     st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
-    components.html(globe_soleil_html(600), height=620)
+    components.html(globe_anime_html(300), height=320)
     st.markdown("</div>", unsafe_allow_html=True)
     col_g, col_c, col_d = st.columns([1, 1, 1])
     with col_c:
@@ -537,6 +538,7 @@ if mode_vocal:
     if question_vocale_seule:
         with st.spinner("Christiane réfléchit..."):
             reponse = traiter_question(question_vocale_seule, mode_equipe_actif, autoriser_actions)
+        components.html(globe_anime_html(600, parlant=True), height=620)
         st.markdown(f"""
         <div class='reponse-vocale'>
             <div class='question-vocale-affichee'>🎤 {question_vocale_seule}</div>
@@ -598,8 +600,4 @@ else:
             traiter_question(question, mode_equipe_actif, autoriser_actions)
         st.audio("reponse_audio.mp3", autoplay=True)
 
-    for echange in reversed(st.session_state.historique):
-        st.markdown(f"<div class='bulle-utilisateur'>{echange['question']}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='bulle-christiane'>{echange['reponse']}</div>", unsafe_allow_html=True)
-        with st.expander("Voir le détail technique"):
-            st.text(echange['journal'])
+    
