@@ -149,7 +149,7 @@ st.markdown("""
 .question-vocale-affichee { color: #7C8AA5; font-size: 14px; margin-bottom: 10px; text-align: left; }
 </style>
 """, unsafe_allow_html=True)
-def globe_anime_html(taille=160):
+def globe_anime_html(taille=160, parlant=False):
     return f"""
     <style>html, body {{ background: transparent !important; margin:0; padding:0; }}</style>
     <div style="display:flex; justify-content:center; align-items:center; width:{taille}px; height:{taille}px; margin:0 auto;">
@@ -210,11 +210,19 @@ var centre = taille / 2;
             }}
             ctx.stroke();
 
+           var intensite = {str(parlant).lower()};
+            var pulsation = intensite ? (22 + Math.sin(angle * 8) * 18) : 0;
             ctx.beginPath();
             ctx.arc(centre, centre, rayon + 2, 0, 6.3);
             ctx.strokeStyle = "rgba(191, 251, 240, 0.6)";
             ctx.lineWidth = 1.4;
             ctx.stroke();
+            if (intensite) {{
+                ctx.shadowColor = "#22D3EE";
+                ctx.shadowBlur = pulsation;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }}
 
             for (var s = 0; s < satellites.length; s++) {{
                 var sat = satellites[s];
@@ -538,7 +546,7 @@ if mode_vocal:
     if question_vocale_seule:
         with st.spinner("Christiane réfléchit..."):
             reponse = traiter_question(question_vocale_seule, mode_equipe_actif, autoriser_actions)
-        components.html(globe_anime_html(600, parlant=True), height=620)
+        components.html(globe_anime_html(300, parlant=True), height=320)
         st.markdown(f"""
         <div class='reponse-vocale'>
             <div class='question-vocale-affichee'>🎤 {question_vocale_seule}</div>
