@@ -524,6 +524,8 @@ if not mode_vocal:
         for echange in list(reversed(st.session_state.historique))[:6]:
             st.markdown(f"<div class='historique-item'>{echange['question']}</div>", unsafe_allow_html=True)
 mode_equipe_actif = mode == "Équipe (recherche + rédaction + flashcards)"
+if "parlant_vocal" not in st.session_state:
+    st.session_state.parlant_vocal = False
 if mode_vocal:
     if vient_dactiver_vocal:
         heure_actuelle = dt.datetime.now().hour
@@ -532,21 +534,22 @@ if mode_vocal:
         st.audio("salutation_audio.mp3", autoplay=True)
     st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
 
-    st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
-    components.html(globe_anime_html(300), height=320)
-    st.markdown("</div>", unsafe_allow_html=True)
-    col_g, col_c, col_d = st.columns([1, 1, 1])
-    with col_c:
+st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
+components.html(globe_anime_html(300, parlant=st.session_state.parlant_vocal), height=320)
+st.markdown("</div>", unsafe_allow_html=True)
+col_g, col_c, col_d = st.columns([1, 1, 1])
+with col_c:
         question_vocale_seule = speech_to_text(
             language="fr", start_prompt="🎤 Appuyez pour parler",
             stop_prompt="⏹️ Arrêter", just_once=True, use_container_width=True,
             key="micro_vocal_seul"
         )
 
-    if question_vocale_seule:
+if question_vocale_seule:
+        st.session_state.parlant_vocal = False
         with st.spinner("Christiane réfléchit..."):
             reponse = traiter_question(question_vocale_seule, mode_equipe_actif, autoriser_actions)
-        components.html(globe_anime_html(300, parlant=True), height=320)
+        st.session_state.parlant_vocal = True
         st.markdown(f"""
         <div class='reponse-vocale'>
             <div class='question-vocale-affichee'>🎤 {question_vocale_seule}</div>
@@ -554,6 +557,7 @@ if mode_vocal:
         </div>
         """, unsafe_allow_html=True)
         st.audio("reponse_audio.mp3", autoplay=True)
+        st.rerun()
 
 else:
     logo_hero = f"<img src='data:image/png;base64,{logo_b64}' width='70'>" if logo_b64 else "<span class='logo-globe'>🌐</span>"

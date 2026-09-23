@@ -28,5 +28,11 @@
     "reponse": "Bonjour Monsieur !  \n\nQuel cours souhaitez‑vous réviser aujourd’hui ? Dites‑moi la matière (par ex. physiologie, électrocardiogramme, biochimie…) et, si possible, le ou les chapitres qui vous posent problème. Ainsi je pourrai :\n\n* vous résumer les notions clés (définition, mécanisme, exemples) ;\n* vous proposer des questions de révision ou même créer des flashcards ;\n* établir, si vous le désirez, un planning de révision jusqu’à votre prochaine échéance.\n\nN’hésitez pas, je suis prête à vous aider !",
     "journal": "[Agent] Bonjour Monsieur !  \n\nQuel cours souhaitez‑vous réviser aujourd’hui ? Dites‑moi la matière (par ex. physiologie, électrocardiogramme, biochimie…) et, si possible, le ou les chapitres qui vous posent problème. Ainsi je pourrai :\n\n* vous résumer les notions clés (définition, mécanisme, exemples) ;\n* vous proposer des questions de révision ou même créer des flashcards ;\n* établir, si vous le désirez, un planning de révision jusqu’à votre prochaine échéance.\n\nN’hésitez pas, je suis prête à vous aider !\n--- Terminé ---",
     "skill": "aucun"
+  },
+  {
+    "question": "salut Stéphane",
+    "reponse": "Salut, Monsieur ! C’est bien Christiane, votre assistante (pas Stéphane, malheureusement). Que puis‑je faire pour vous aujourd’hui ?",
+    "journal": "[Agent] Salut, Monsieur ! C’est bien Christiane, votre assistante (pas Stéphane, malheureusement). Que puis‑je faire pour vous aujourd’hui ?\n--- Terminé ---",
+    "skill": "aucun"
   }
 ]
