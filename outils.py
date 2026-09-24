@@ -1,3 +1,4 @@
+from alpha_agent import collecter_informations
 import smtplib
 from email.mime.text import MIMEText
 import requests
@@ -273,6 +274,8 @@ Bonne réponse : ...
         return resultat
     except Exception as e:
         return f"Erreur : {e}"
+def rechercher_avec_alpha(question: str) -> str:
+    return collecter_informations(question)
 OUTILS_DISPONIBLES ={
     "lire_fichier": lire_fichier,
     "ecrire_fichier": ecrire_fichier,
@@ -292,6 +295,7 @@ OUTILS_DISPONIBLES ={
     "suivre_progression": suivre_progression,
     "voir_progression": voir_progression,
     "exporter_donnees": exporter_donnees,
-    "planifier_revision": planifier_revisions,
+    "planifier_revisions": planifier_revisions,
     "generer_qcm": generer_qcm,
+    "recherche_avec_alpha":rechercher_avec_alpha,
 }

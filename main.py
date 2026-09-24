@@ -72,12 +72,20 @@ def lancer_agent(objectif: str, confirmer_action=None):
     journal = []
     reponse_finale = ""
     for i in range(MAX_ITERATIONS):
-        reponse = client.chat.completions.create(
-            model="openai/gpt-oss-120b",
-            messages=messages,
-            tools=TOOLS_SCHEMA,
-            max_tokens=1024
-        )
+        try:
+            reponse = client.chat.completions.create(
+                model="openai/gpt-oss-120b",
+                messages=messages,
+                tools=TOOLS_SCHEMA,
+                max_tokens=1024
+            )
+        except Exception as e:
+            journal.append(f"[Erreur API] {e}")
+            messages.append({
+                "role": "user",
+                "content": "Ta dernière tentative a échoué car tu as appelé un outil qui n'existe pas. Utilise uniquement les outils réellement disponibles, ou réponds directement sans outil si aucun ne convient."
+            })
+            continue
 
         message = reponse.choices[0].message
         messages.append(message)
