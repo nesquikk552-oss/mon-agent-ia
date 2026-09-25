@@ -391,27 +391,41 @@ Bonne réponse : ...
         return resultat
     except Exception as e:
         return f"Erreur : {e}"
-from alpha_agent import collecter_informations
+def charger_memoire_generale() -> str:
+    try:
+        with open("memoire.txt", "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return ""
 
+def enrichir_avec_contexte(instruction: str) -> str:
+    contexte = charger_memoire_generale()
+    if contexte:
+        return f"Contexte sur Monsieur Farnèse :\n{contexte}\n\nDemande : {instruction}"
+    return instruction
 def rechercher_avec_alpha(question: str) -> str:
-    return collecter_informations(question)
-from beta_agent import gerer_fichiers
+    from alpha_agent import collecter_informations
+    return collecter_informations(enrichir_avec_contexte(question))
 
 def gerer_fichiers_avec_beta(instruction: str) -> str:
-    return gerer_fichiers(instruction)
+    from beta_agent import gerer_fichiers
+    return gerer_fichiers(enrichir_avec_contexte(instruction))
 
 def resoudre_avec_grio(instruction: str) -> str:
-   from grio_agent import resoudre_mathematiques 
-   return resoudre_mathematiques(instruction)
+    from grio_agent import resoudre_mathematiques
+    return resoudre_mathematiques(enrichir_avec_contexte(instruction))
+
 def gerer_revisions_avec_delta(instruction: str) -> str:
     from delta_agent import gerer_revisions
-    return gerer_revisions(instruction)
+    return gerer_revisions(enrichir_avec_contexte(instruction))
+
 def gerer_agenda_temps_avec_gamma(instruction: str) -> str:
     from gamma_agent import gerer_agenda_temps
-    return gerer_agenda_temps(instruction)
+    return gerer_agenda_temps(enrichir_avec_contexte(instruction))
+
 def gerer_documents_avec_lambda(instruction: str) -> str:
     from lambda_agent import gerer_documents
-    return gerer_documents(instruction)
+    return gerer_documents(enrichir_avec_contexte(instruction))
 OUTILS_DISPONIBLES ={
     "lire_fichier": lire_fichier,
     "ecrire_fichier": ecrire_fichier,
