@@ -279,5 +279,16 @@ TOOLS_SCHEMA = [
                 "required": ["instruction"]
             }
         }
+    },{
+        "type": "function",
+        "function": {
+            "name": "gerer_revisions_avec_delta",
+            "description": "Délègue une tâche de révision à Delta, un agent spécialisé qui crée des flashcards, suit et consulte la progression, planifie les révisions jusqu'à une date d'examen, et génère des QCM. À utiliser pour toute demande liée aux révisions plutôt que les outils individuels.",
+            "parameters": {
+                "type": "object",
+                "properties": {"instruction": {"type": "string"}},
+                "required": ["instruction"]
+            }
+        }
     }
 ]

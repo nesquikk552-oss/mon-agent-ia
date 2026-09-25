@@ -285,6 +285,9 @@ def gerer_fichiers_avec_beta(instruction: str) -> str:
 def resoudre_avec_grio(instruction: str) -> str:
    from grio_agent import resoudre_mathematiques 
    return resoudre_mathematiques(instruction)
+def gerer_revisions_avec_delta(instruction: str) -> str:
+    from delta_agent import gerer_revisions
+    return gerer_revisions(instruction)
 OUTILS_DISPONIBLES ={
     "lire_fichier": lire_fichier,
     "ecrire_fichier": ecrire_fichier,
@@ -309,4 +312,5 @@ OUTILS_DISPONIBLES ={
     "recherche_avec_alpha":rechercher_avec_alpha,
     "gerer_fichiers_avec_beta": gerer_fichiers_avec_beta,
     "resoudre_avec_grio": resoudre_avec_grio,
+    "gerer_revisions_avec_delta": gerer_revisions_avec_delta,
 }

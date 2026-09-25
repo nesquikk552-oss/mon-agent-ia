@@ -1,0 +1,67 @@
+Planning de révision jusqu'au 2026-12-01 (66 jours) :
+- 2026-09-25 : Physique - Mécanique
+- 2026-09-26 : Physique - Thermodynamique
+- 2026-09-27 : Physique - Électromagnétisme
+- 2026-09-28 : Physique - Optique
+- 2026-09-29 : Physique - Physique moderne
+- 2026-09-30 : Chimie - Chimie organique
+- 2026-10-01 : Chimie - Chimie inorganique
+- 2026-10-02 : Chimie - Chimie physique
+- 2026-10-03 : Chimie - Chimie analytique
+- 2026-10-04 : Physique - Mécanique
+- 2026-10-05 : Physique - Thermodynamique
+- 2026-10-06 : Physique - Électromagnétisme
+- 2026-10-07 : Physique - Optique
+- 2026-10-08 : Physique - Physique moderne
+- 2026-10-09 : Chimie - Chimie organique
+- 2026-10-10 : Chimie - Chimie inorganique
+- 2026-10-11 : Chimie - Chimie physique
+- 2026-10-12 : Chimie - Chimie analytique
+- 2026-10-13 : Physique - Mécanique
+- 2026-10-14 : Physique - Thermodynamique
+- 2026-10-15 : Physique - Électromagnétisme
+- 2026-10-16 : Physique - Optique
+- 2026-10-17 : Physique - Physique moderne
+- 2026-10-18 : Chimie - Chimie organique
+- 2026-10-19 : Chimie - Chimie inorganique
+- 2026-10-20 : Chimie - Chimie physique
+- 2026-10-21 : Chimie - Chimie analytique
+- 2026-10-22 : Physique - Mécanique
+- 2026-10-23 : Physique - Thermodynamique
+- 2026-10-24 : Physique - Électromagnétisme
+- 2026-10-25 : Physique - Optique
+- 2026-10-26 : Physique - Physique moderne
+- 2026-10-27 : Chimie - Chimie organique
+- 2026-10-28 : Chimie - Chimie inorganique
+- 2026-10-29 : Chimie - Chimie physique
+- 2026-10-30 : Chimie - Chimie analytique
+- 2026-10-31 : Physique - Mécanique
+- 2026-11-01 : Physique - Thermodynamique
+- 2026-11-02 : Physique - Électromagnétisme
+- 2026-11-03 : Physique - Optique
+- 2026-11-04 : Physique - Physique moderne
+- 2026-11-05 : Chimie - Chimie organique
+- 2026-11-06 : Chimie - Chimie inorganique
+- 2026-11-07 : Chimie - Chimie physique
+- 2026-11-08 : Chimie - Chimie analytique
+- 2026-11-09 : Physique - Mécanique
+- 2026-11-10 : Physique - Thermodynamique
+- 2026-11-11 : Physique - Électromagnétisme
+- 2026-11-12 : Physique - Optique
+- 2026-11-13 : Physique - Physique moderne
+- 2026-11-14 : Chimie - Chimie organique
+- 2026-11-15 : Chimie - Chimie inorganique
+- 2026-11-16 : Chimie - Chimie physique
+- 2026-11-17 : Chimie - Chimie analytique
+- 2026-11-18 : Physique - Mécanique
+- 2026-11-19 : Physique - Thermodynamique
+- 2026-11-20 : Physique - Électromagnétisme
+- 2026-11-21 : Physique - Optique
+- 2026-11-22 : Physique - Physique moderne
+- 2026-11-23 : Chimie - Chimie organique
+- 2026-11-24 : Chimie - Chimie inorganique
+- 2026-11-25 : Chimie - Chimie physique
+- 2026-11-26 : Chimie - Chimie analytique
+- 2026-11-27 : Physique - Mécanique
+- 2026-11-28 : Physique - Thermodynamique
+- 2026-11-29 : Physique - Électromagnétisme
