@@ -92,6 +92,46 @@ def rechercher_web(requete: str) -> str:
         return f"Erreur : {e}"
 def obtenir_date_heure() -> str:
     return datetime.now().strftime("%A %d %B %Y, %H:%M")
+def obtenir_date_heure_fuseau(fuseau: str = "Africa/Porto-Novo") -> str:
+    try:
+        from zoneinfo import ZoneInfo
+        maintenant = datetime.now(ZoneInfo(fuseau))
+        return maintenant.strftime("%A %d %B %Y, %H:%M") + f" ({fuseau})"
+    except Exception as e:
+        return f"Erreur : fuseau horaire invalide ou inconnu ({fuseau}). Utilise un format comme 'Europe/Paris', 'America/New_York', 'Asia/Tokyo'. Détail : {e}"
+def ajouter_evenement(titre: str, date_heure: str, description: str = "") -> str:
+    try:
+        ligne = f"{date_heure} | {titre} | {description}\n"
+        with open("agenda.txt", "a", encoding="utf-8") as f:
+            f.write(ligne)
+        return f"Événement '{titre}' ajouté pour le {date_heure}."
+    except Exception as e:
+        return f"Erreur : {e}"
+
+def lister_evenements() -> str:
+    try:
+        with open("agenda.txt", "r", encoding="utf-8") as f:
+            contenu = f.read().strip()
+        if not contenu:
+            return "Aucun événement dans l'agenda."
+        return contenu
+    except FileNotFoundError:
+        return "Aucun événement dans l'agenda."
+
+def supprimer_evenement(titre: str) -> str:
+    try:
+        with open("agenda.txt", "r", encoding="utf-8") as f:
+            lignes = f.readlines()
+        lignes_restantes = [l for l in lignes if titre.lower() not in l.lower()]
+        if len(lignes_restantes) == len(lignes):
+            return f"Aucun événement trouvé avec le titre '{titre}'."
+        with open("agenda.txt", "w", encoding="utf-8") as f:
+            f.writelines(lignes_restantes)
+        return f"Événement(s) contenant '{titre}' supprimé(s)."
+    except FileNotFoundError:
+        return "Aucun agenda existant."
+    except Exception as e:
+        return f"Erreur : {e}"
 def creer_flashcard(question: str, reponse: str) -> str:
     try:
         with open("flashcards.txt", "a", encoding="utf-8") as f:
