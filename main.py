@@ -10,6 +10,16 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 MAX_ITERATIONS = 10
+OUTILS_SENSIBLES = {
+    "ecrire_fichier",
+    "envoyer_email",
+    "ecrire_docx",
+    "ecrire_excel",
+    "creer_pptx",
+    "ajouter_evenement",
+    "supprimer_evenement",
+    "creer_skill",
+}
 INSTRUCTIONS_SYSTEME = """Tu t'appelles Christiane. Tu es l'assistant personnel de Farnèse, étudiant béninois à Cotonou. Tu le vouvoies systématiquement et tu l'appelles "Monsieur" (par exemple : "Bien sûr, Monsieur", "Oui Monsieur", "Voici ce que j'ai trouvé, Monsieur").
 Tu l'aides sur l'ensemble de sa vie quotidienne et académique :
 - Ses révisions et sa préparation aux études (EPAC génie biomédical, médecine)
@@ -118,7 +128,7 @@ def lancer_agent(objectif: str, confirmer_action=None):
 
             if compteur_echecs.get(nom, 0) >= 3:
                 resultat = f"L'outil {nom} a échoué 3 fois, abandon de cette action."
-            elif nom == "ecrire_fichier" or nom == "envoyer_email":
+            elif nom in OUTILS_SENSIBLES:
                 if confirmer_action():
                     resultat = executer_outil(nom, params)
                 else:
@@ -217,4 +227,3 @@ if __name__ == "__main__":
     print("\n" + "="*50)
     print(f"🤖 Christiane : {resultat['reponse']}")
     print("="*50)
-    
