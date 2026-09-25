@@ -60,18 +60,41 @@ def executer_outil(nom, params, tentative=1):
         enregistrer_erreur(nom, params, message)
         return message
 
-def lancer_agent(objectif: str, confirmer_action=None):
-    if confirmer_action is None:
-        confirmer_action = lambda: input("Confirmer l'écriture ? (o/n) : ").lower() == "o"
+def lancer_agent_securise(objectif_initial: str, skill_active: str = ""):
+    """
+    Harnais logiciel qui encapsule le modèle pour garantir la fiabilité,
+    l'auto-correction et la sécurité des exécutions.
+    """
+    instructions_finales = INSTRUCTIONS_SYSTEME
+    
+    if skill_active and skill_active != "aucun":
+        try:
+            with open(f"skills/{skill_active}.txt", "r", encoding="utf-8") as f:
+                instructions_finales += f"\n\n[MODE ACTIVÉ] :\n{f.read()}"
+        except FileNotFoundError:
+            pass
+
+    try:
+        with open("memoire.txt", "r", encoding="utf-8") as f:
+            memoire_historique = f.read()
+    except FileNotFoundError:
+        memoire_historique = "Aucune information."
+
 
     messages = [
-        {"role": "system", "content": INSTRUCTIONS_SYSTEME},
-        {"role": "user", "content": objectif}
+        {"role": "system", "content": instructions_finales},
+        {"role": "user", "content": f"Infos sur Monsieur Farnèse :\n{memoire_historique}\n\nMission : {objectif_initial}"}
     ]
-    compteur_echecs = {}
-    journal = []
+    
+    compteur_erreurs = {}
     reponse_finale = ""
-    for i in range(MAX_ITERATIONS):
+    
+    print("\n🚀 [HARNAIS ACTIVÉ] Initialisation de la boucle de contrôle...")
+
+
+    for iteration in range(1, MAX_ITERATIONS + 1):
+        print(f"🤖 [Itération {iteration}/{MAX_ITERATIONS}] Appel de Groq...")
+        
         try:
             reponse = client.chat.completions.create(
                 model="openai/gpt-oss-120b",
@@ -79,69 +102,78 @@ def lancer_agent(objectif: str, confirmer_action=None):
                 tools=TOOLS_SCHEMA,
                 max_tokens=1024
             )
-        except Exception as e:
-            journal.append(f"[Erreur API] {e}")
+        except Exception as api_err:
+            print(f"⚠️ [Harnais] Échec de l'API : {api_err}. Récurrence forcée...")
             messages.append({
                 "role": "user",
-                "content": "Ta dernière tentative a échoué car tu as appelé un outil qui n'existe pas. Utilise uniquement les outils réellement disponibles, ou réponds directement sans outil si aucun ne convient."
+                "content": "Système : Ton dernier appel a généré une erreur de syntaxe ou un format d'outil invalide. Corrige ton format JSON."
             })
             continue
 
-        message = reponse.choices[0].message
-        messages.append(message)
+        message_ia = reponse.choices[0].message
+        messages.append(message_ia)
 
-        if message.content:
-            journal.append(f"[Agent] {message.content}")
-            reponse_finale = message.content
+        if message_ia.content:
+            reponse_finale = message_ia.content
 
-        if not message.tool_calls:
-            journal.append("--- Terminé ---")
-            break
+    
+        if not message_ia.tool_calls:
+            print("✅ [Harnais] Mission accomplie avec succès sans besoin d'action supplémentaire.")
+        break 
+        nom_outil = appel.function.name
+            
+        try:
+                params = json.loads(appel.function.arguments)
+        except json.JSONDecodeError:
+                
+                resultat_erreur = "Erreur : Vos arguments d'outil ne sont pas un JSON valide."
+                messages.append({"role": "tool", "tool_call_id": appel.id, "content": resultat_erreur})
+                continue
 
-        for appel in message.tool_calls:
-            nom = appel.function.name
-            params = json.loads(appel.function.arguments)
-            journal.append(f"[Outil] {nom}({params})")
+        print(f"🛠️ [Harnais] Christiane demande à exécuter : {nom_outil} avec {params}")
 
-            if compteur_echecs.get(nom, 0) >= 3:
-                resultat = f"L'outil {nom} a échoué 3 fois, abandon de cette action."
-            elif nom == "ecrire_fichier" or nom == "envoyer_email":
-                if confirmer_action():
-                    resultat = executer_outil(nom, params)
+    if compteur_erreurs.get(nom_outil, 0) >= 3:
+                resultat_outil = f"Erreur : L'outil {nom_outil} a échoué trop de fois. Action bloquée."
+            
+    
+    elif nom_outil in ["ecrire_fichier", "envoyer_email"]:
+                confirmation = input(f"⚠️ [Validation Humaine] Autoriser l'action '{nom_outil}' ? (o/n) : ").lower()
+                if confirmation == "o":
+                    resultat_outil = executer_outil(nom_outil, params)
                 else:
-                    resultat = "Action refusée par l'utilisateur."
-            else:
-                resultat = executer_outil(nom, params)
+                    resultat_outil = "Action annulée : Refusée par Monsieur Farnèse."
+    else:
+            
+                resultat_outil = executer_outil(nom_outil, params)
 
-            if str(resultat).startswith("Erreur"):
-                compteur_echecs[nom] = compteur_echecs.get(nom, 0) + 1
+            
+    if str(resultat_outil).startswith("Erreur"):
+                compteur_erreurs[nom_outil] = compteur_erreurs.get(nom_outil, 0) + 1
+                print(f"❌ [Harnais] Erreur d'exécution détectée. Renvoi de la trace à l'IA pour correction.")
+    else:
+                print(f"📥 [Harnais] Succès de l'outil. Retour transmis à l'IA.")
 
-            messages.append({
+            
+    messages.append({
                 "role": "tool",
                 "tool_call_id": appel.id,
-                "content": str(resultat)
+                "content": str(resultat_outil)
             })
-    else:
-        journal.append("Limite d'itérations atteinte.")
 
-    condenser_memoire_si_necessaire(client)
+else:
 
-    return {
-        "reponse": reponse_finale,
-        "journal": "\n".join(journal)
-    }
-if __name__ == "__main__":
-    try:
-        with open("memoire.txt", "r", encoding="utf-8") as f:
-            memoire = f.read()
-    except FileNotFoundError:
-        memoire = "Aucune information mémorisée pour l'instant."
+print("🛑 [Harnais] Limite d'itérations atteinte. Arrêt de sécurité.")
 
-    skills_disponibles = []
-    if os.path.exists("skills"):
-        skills_disponibles = [f.replace(".txt", "") for f in os.listdir("skills") if f.endswith(".txt")]
+    
+try:
+        condenser_memoire_si_necessaire(client)
+except Exception:
+        pass
 
-    def detecter_skill(objectif_utilisateur):
+return reponse_finale
+
+
+def detecter_skill(objectif_utilisateur):
         if not skills_disponibles:
             return ""
         descriptions = []
@@ -163,7 +195,7 @@ if __name__ == "__main__":
                 messages=[{"role": "user", "content": prompt_detection}],
                 max_tokens=20
             )
-            choix = reponse.choices[0].message.content.strip().lower()
+            choix = reponse.choices[0].message.content.strip().lower().replace(".", "")
             return choix if choix in skills_disponibles else ""
         except Exception:
             return ""
@@ -188,6 +220,27 @@ if __name__ == "__main__":
         f"utilise l'outil resumer_memoire.\n\n"
         f"Ma demande : {objectif}"
     )
+    if __name__ == "__main__":
+    
+print("--- DÉMARRAGE DE CHRISTIANE (MODE AGENT AUTONOME) ---")
+    objectif_farnese = input("Que dois-je faire pour vous, Monsieur ? : ")
 
-    resultat = lancer_agent(objectif_complet)
-    print(resultat["reponse"])
+    skill_choisi = detecter_skill(objectif_farnese)
+    print(f"[Système] Mode détecté : {skill_choisi if skill_choisi else 'Aucun (Chat général)'}")
+
+    if skill_choisi == "organisation":
+        from alpha_agent import lancer_organisation
+        try:
+            with open("skills/organisation.txt", "r", encoding="utf-8") as f:
+                regles = f.read()
+        except FileNotFoundError:
+            regles = "Priorise par urgence/importance. Découpe en sous-étapes."
+        
+        reponse = lancer_organisation(objectif_farnese, regles)
+    else:
+    
+        reponse = lancer_agent_securise(objectif_farnese, skill_active=skill_choisi)
+
+    print("\n" + "="*50)
+    print(f"🤖 Christiane : {reponse}")
+    print("="*50)

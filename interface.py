@@ -89,6 +89,23 @@ st.markdown("""
     font-size: 34px;
     text-shadow: 0 0 12px #22D3EE, 0 0 24px #22D3EE88;
 }
+.badge-alpha {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #131A2A;
+    border: 1px solid #22D3EE44;
+    border-radius: 20px;
+    padding: 6px 14px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #9AA6BC;
+}
+.badge-alpha .lettre-alpha {
+    font-size: 18px;
+    font-weight: 700;
+    color: #22D3EE;
+    text-shadow: 0 0 10px #22D3EE, 0 0 20px #22D3EE88
 [data-testid="stSidebar"] { background-color: #0E1420; }
 .sidebar-titre {
     display:flex; align-items:center; gap:8px;
@@ -562,12 +579,12 @@ if question_vocale_seule:
 else:
     logo_hero = f"<img src='data:image/png;base64,{logo_b64}' width='70'>" if logo_b64 else "<span class='logo-globe'>🌐</span>"
     st.markdown(f"""
-    <div class='hero-accueil'>
-        {logo_hero}
-        <div class='sous-titre'>Bon retour</div>
-        <h1>Que puis-je faire pour vous aujourd'hui ?</h1>
-    </div>
-    """, unsafe_allow_html=True)
+<div class='hero-accueil'>
+    {logo_hero}
+    <div class='sous-titre'>Bon retour</div>
+    <h1>Que puis-je faire pour vous aujourd'hui ?</h1>
+    <div class='badge-alpha'><span class='lettre-alpha'>Αα</span> Alpha, assistant de recherche, actif</div>
+""", unsafe_allow_html=True)
 
     st.markdown("<div class='composer'>", unsafe_allow_html=True)
     col_micro, col_texte, col_envoyer = st.columns([1, 6, 1])
