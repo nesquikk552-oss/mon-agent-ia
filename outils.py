@@ -328,6 +328,9 @@ def resoudre_avec_grio(instruction: str) -> str:
 def gerer_revisions_avec_delta(instruction: str) -> str:
     from delta_agent import gerer_revisions
     return gerer_revisions(instruction)
+def gerer_agenda_temps_avec_gamma(instruction: str) -> str:
+    from gamma_agent import gerer_agenda_temps
+    return gerer_agenda_temps(instruction)
 OUTILS_DISPONIBLES ={
     "lire_fichier": lire_fichier,
     "ecrire_fichier": ecrire_fichier,
@@ -353,4 +356,5 @@ OUTILS_DISPONIBLES ={
     "gerer_fichiers_avec_beta": gerer_fichiers_avec_beta,
     "resoudre_avec_grio": resoudre_avec_grio,
     "gerer_revisions_avec_delta": gerer_revisions_avec_delta,
+    "gerer_agenda_temps_avec_gamma": gerer_agenda_temps_avec_gamma,
 }

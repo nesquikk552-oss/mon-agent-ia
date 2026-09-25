@@ -290,5 +290,16 @@ TOOLS_SCHEMA = [
                 "required": ["instruction"]
             }
         }
+    },{
+        "type": "function",
+        "function": {
+            "name": "gerer_agenda_temps_avec_gamma",
+            "description": "Délègue une tâche à Gamma, un agent spécialisé qui gère l'agenda (ajout, liste, suppression d'événements), donne la date et l'heure dans n'importe quel fuseau horaire, et la météo n'importe où dans le monde. À utiliser pour toute demande liée à l'agenda, aux fuseaux horaires ou à la météo.",
+            "parameters": {
+                "type": "object",
+                "properties": {"instruction": {"type": "string"}},
+                "required": ["instruction"]
+            }
+        }
     }
 ]
