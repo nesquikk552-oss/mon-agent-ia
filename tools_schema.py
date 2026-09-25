@@ -244,5 +244,29 @@ TOOLS_SCHEMA = [
                 "required": ["sujets", "date_examen"]
             }
         }
+    },
+{
+        "type": "function",
+        "function": {
+            "name": "rechercher_avec_alpha",
+            "description": "Délègue une recherche approfondie à Alpha, un agent de recherche spécialisé qui explore le web et renvoie une synthèse claire et sourcée. À utiliser de préférence à rechercher_web pour les questions qui demandent une vraie synthèse (sujets complexes, comparaisons, questions d'actualité détaillées) plutôt qu'un simple résultat brut.",
+            "parameters": {
+                "type": "object",
+                "properties": {"question": {"type": "string"}},
+                "required": ["question"]
+            }
+        }
+    }
+    ,{
+        "type": "function",
+        "function": {
+            "name": "gerer_fichiers_avec_beta",
+            "description": "Délègue une tâche de gestion de fichiers à Beta, un agent spécialisé qui peut lire, écrire, lister des fichiers et compter des mots, en enchaînant plusieurs opérations si nécessaire. À utiliser pour les demandes qui impliquent plusieurs étapes sur des fichiers (ex: comparer deux fichiers, résumer le contenu de plusieurs fichiers, lister puis analyser).",
+            "parameters": {
+                "type": "object",
+                "properties": {"instruction": {"type": "string"}},
+                "required": ["instruction"]
+            }
+        }
     }
 ]

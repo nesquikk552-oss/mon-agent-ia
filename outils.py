@@ -1,4 +1,5 @@
 from alpha_agent import collecter_informations
+from beta_agent import gerer_fichiers
 import smtplib
 from email.mime.text import MIMEText
 import requests
@@ -276,6 +277,8 @@ Bonne réponse : ...
         return f"Erreur : {e}"
 def rechercher_avec_alpha(question: str) -> str:
     return collecter_informations(question)
+def gerer_fichiers_avec_beta(instruction: str) -> str:
+    return gerer_fichiers(instruction)
 OUTILS_DISPONIBLES ={
     "lire_fichier": lire_fichier,
     "ecrire_fichier": ecrire_fichier,
@@ -298,4 +301,5 @@ OUTILS_DISPONIBLES ={
     "planifier_revisions": planifier_revisions,
     "generer_qcm": generer_qcm,
     "recherche_avec_alpha":rechercher_avec_alpha,
+    "gerer_fichiers_avec_beta": gerer_fichiers_avec_beta,
 }
