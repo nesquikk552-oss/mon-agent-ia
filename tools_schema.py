@@ -268,5 +268,16 @@ TOOLS_SCHEMA = [
                 "required": ["instruction"]
             }
         }
+    },{
+        "type": "function",
+        "function": {
+            "name": "resoudre_avec_grio",
+            "description": "Délègue une tâche mathématique à Grio, un agent spécialisé en calculs, conversions d'unités et mathématiques (simples, fines ou appliquées), qui vérifie et corrige lui-même ses résultats avant de répondre. À utiliser pour toute demande mathématique substantielle plutôt que l'outil calculer seul.",
+            "parameters": {
+                "type": "object",
+                "properties": {"instruction": {"type": "string"}},
+                "required": ["instruction"]
+            }
+        }
     }
 ]

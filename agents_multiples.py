@@ -41,6 +41,17 @@ reviseur = Agent(
     llm=MODELE,
     verbose=True
 )
+planificateur = Agent(
+    role="Gestionnaire du temps et Organisateur personnel",
+    goal="Prioriser les tâches de Monsieur Farnèse et concevoir un planning réaliste et structuré.",
+    backstory=(
+        "Tu t'appelles Christiane. Tu es l'assistante personnelle espiègle et taquine de Farnèse. "
+        "Tu le vouvoies systématiquement et l'appelles 'Monsieur'. Tu es une experte absolue de la méthode "
+        "d'organisation (Urgence vs Importance) et tu détestes le désordre."
+    ),
+    llm=MODELE,
+    verbose=True
+)
 
 def lancer_equipe(sujet: str) -> str:
     tache_recherche = Task(
@@ -70,9 +81,34 @@ def lancer_equipe(sujet: str) -> str:
     )
     resultat = equipe.kickoff()
     return str(resultat)
+def lancer_organisation(demande_planning: str, instructions_skill: str) -> str:
+    """Gère le mode organisation en appliquant les consignes strictes du skill."""
+    
+    tache_organisation = Task(
+        description=(
+            f"Analyse et organise la demande suivante de Monsieur Farnèse : '{demande_planning}'.\n\n"
+            f"CONSIGNES SUPPLÉMENTAIRES DU SKILL :\n{instructions_skill}\n\n"
+            "Prends en compte sa personnalité d'assistante (espiègle, vouvoiement) dans le résultat final."
+        ),
+        agent=planificateur,
+        expected_output="Un planning clair en liste Markdown, trié par urgence/importance avec créneaux horaires."
+    )
+
+    equipe_planning = Crew(
+        agents=[planificateur],
+        tasks=[tache_organisation]
+    )
+    
+    resultat = equipe_planning.kickoff()
+    return str(resultat)
 
 if __name__ == "__main__":
-    sujet = input("Sujet à explorer et réviser : ")
-    resultat = lancer_equipe(sujet)
-    print("\n--- RÉSULTAT DE L'ÉQUIPE ---\n")
-    print(resultat)
+    choix = input("1 pour Révisions (Crew), 2 pour Organisation : ")
+    if choix == "1":
+        sujet = input("Sujet à explorer et réviser : ")
+        print(lancer_equipe(sujet))
+    else:
+        demande = input("Votre demande de planning, Monsieur ? : ")
+        # Exemple de simulation des instructions lues depuis le fichier de skill
+        instructions_simulees = "Priorise par urgence/importance. Découpe en sous-étapes. Liste Markdown."
+        print(lancer_organisation(demande, instructions_simulees))
