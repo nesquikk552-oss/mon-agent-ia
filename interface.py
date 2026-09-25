@@ -106,6 +106,24 @@ st.markdown("""
     font-weight: 700;
     color: #22D3EE;
     text-shadow: 0 0 10px #22D3EE, 0 0 20px #22D3EE88
+    .badge-beta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #131A2A;
+    border: 1px solid #22D3EE44;
+    border-radius: 20px;
+    padding: 6px 14px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #9AA6BC;
+}
+.badge-beta .lettre-beta {
+    font-size: 18px;
+    font-weight: 700;
+    color: #22D3EE;
+    text-shadow: 0 0 10px #22D3EE, 0 0 20px #22D3EE88;
+}
 [data-testid="stSidebar"] { background-color: #0E1420; }
 .sidebar-titre {
     display:flex; align-items:center; gap:8px;
@@ -584,6 +602,7 @@ else:
     <div class='sous-titre'>Bon retour</div>
     <h1>Que puis-je faire pour vous aujourd'hui ?</h1>
     <div class='badge-alpha'><span class='lettre-alpha'>Αα</span> Alpha, assistant de recherche, actif</div>
+    <div class='badge-beta'><span class='lettre-beta'>Ββ</span> Beta, assistant fichiers, actif</div>
 """, unsafe_allow_html=True)
 
     st.markdown("<div class='composer'>", unsafe_allow_html=True)
