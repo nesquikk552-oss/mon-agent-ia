@@ -177,6 +177,24 @@ st.markdown("""
     color: #22D3EE;
     text-shadow: 0 0 10px #22D3EE, 0 0 20px #22D3EE88;
 }
+.badge-lambda {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #131A2A;
+    border: 1px solid #22D3EE44;
+    border-radius: 20px;
+    padding: 6px 14px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #9AA6BC;
+}
+.badge-lambda .lettre-lambda {
+    font-size: 18px;
+    font-weight: 700;
+    color: #22D3EE;
+    text-shadow: 0 0 10px #22D3EE, 0 0 20px #22D3EE88;
+}
 [data-testid="stSidebar"] { background-color: #0E1420; }
 .sidebar-titre {
     display:flex; align-items:center; gap:8px;
@@ -659,6 +677,7 @@ else:
     <div class='badge-grio'><img src='data:image/png;base64,{logo_grio_b64}'> Grio, assistant mathématiques, actif</div>
     <div class='badge-delta'><span class='lettre-delta'>Δδ</span> Delta, assistant révisions, actif</div>
     <div class='badge-gamma'><span class='lettre-gamma'>Γγ</span> Gamma, assistant agenda et météo, actif</div>
+    <div class='badge-lambda'><span class='lettre-lambda'>Λλ</span> Lambda, assistant documents, actif</div>
 """, unsafe_allow_html=True)
 
     st.markdown("<div class='composer'>", unsafe_allow_html=True)

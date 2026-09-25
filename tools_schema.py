@@ -301,5 +301,16 @@ TOOLS_SCHEMA = [
                 "required": ["instruction"]
             }
         }
+    },{
+        "type": "function",
+        "function": {
+            "name": "gerer_documents_avec_lambda",
+            "description": "Délègue une tâche à Lambda, un agent spécialisé dans la gestion de documents : lecture et création de fichiers Word, Excel, PowerPoint et PDF. À utiliser pour toute demande impliquant ces types de fichiers.",
+            "parameters": {
+                "type": "object",
+                "properties": {"instruction": {"type": "string"}},
+                "required": ["instruction"]
+            }
+        }
     }
 ]

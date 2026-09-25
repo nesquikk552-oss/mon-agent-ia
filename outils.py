@@ -214,6 +214,84 @@ def lire_pdf(chemin: str) -> str:
         return texte[:5000] if len(texte) > 5000 else texte
     except Exception as e:
         return f"Erreur : {e}"
+def lire_docx(chemin: str) -> str:
+    try:
+        from docx import Document
+        doc = Document(chemin)
+        texte = "\n".join(p.text for p in doc.paragraphs)
+        return texte[:5000] if len(texte) > 5000 else texte
+    except Exception as e:
+        return f"Erreur : {e}"
+
+def ecrire_docx(chemin: str, contenu: str, titre: str = "") -> str:
+    try:
+        from docx import Document
+        doc = Document()
+        if titre:
+            doc.add_heading(titre, level=1)
+        for paragraphe in contenu.split("\n"):
+            doc.add_paragraph(paragraphe)
+        doc.save(chemin)
+        return f"Document Word {chemin} créé avec succès."
+    except Exception as e:
+        return f"Erreur : {e}"
+
+def lire_excel(chemin: str) -> str:
+    try:
+        from openpyxl import load_workbook
+        classeur = load_workbook(chemin, data_only=True)
+        resultat = []
+        for feuille in classeur.sheetnames:
+            ws = classeur[feuille]
+            resultat.append(f"--- Feuille : {feuille} ---")
+            for ligne in ws.iter_rows(values_only=True, max_row=50):
+                resultat.append(" | ".join(str(c) if c is not None else "" for c in ligne))
+        texte = "\n".join(resultat)
+        return texte[:5000] if len(texte) > 5000 else texte
+    except Exception as e:
+        return f"Erreur : {e}"
+
+def ecrire_excel(chemin: str, donnees: str, feuille: str = "Feuille1") -> str:
+    try:
+        from openpyxl import Workbook
+        classeur = Workbook()
+        ws = classeur.active
+        ws.title = feuille
+        for i, ligne in enumerate(donnees.split("\n"), start=1):
+            for j, valeur in enumerate(ligne.split(","), start=1):
+                ws.cell(row=i, column=j, value=valeur.strip())
+        classeur.save(chemin)
+        return f"Fichier Excel {chemin} créé avec succès."
+    except Exception as e:
+        return f"Erreur : {e}"
+
+def lire_pptx(chemin: str) -> str:
+    try:
+        from pptx import Presentation
+        prs = Presentation(chemin)
+        resultat = []
+        for i, diapo in enumerate(prs.slides, start=1):
+            resultat.append(f"--- Diapositive {i} ---")
+            for forme in diapo.shapes:
+                if forme.has_text_frame:
+                    resultat.append(forme.text_frame.text)
+        texte = "\n".join(resultat)
+        return texte[:5000] if len(texte) > 5000 else texte
+    except Exception as e:
+        return f"Erreur : {e}"
+
+def creer_pptx(chemin: str, titre: str, contenu: str) -> str:
+    try:
+        from pptx import Presentation
+        prs = Presentation()
+        diapo = prs.slides.add_slide(prs.slide_layouts[1])
+        diapo.shapes.title.text = titre
+        zone_texte = diapo.placeholders[1]
+        zone_texte.text = contenu
+        prs.save(chemin)
+        return f"Présentation PowerPoint {chemin} créée avec succès."
+    except Exception as e:
+        return f"Erreur : {e}"
 def suivre_progression(matiere: str, statut: str) -> str:
     try:
         ligne = f"[{matiere}] {statut} - {datetime.now().strftime('%Y-%m-%d')}\n"
@@ -331,6 +409,9 @@ def gerer_revisions_avec_delta(instruction: str) -> str:
 def gerer_agenda_temps_avec_gamma(instruction: str) -> str:
     from gamma_agent import gerer_agenda_temps
     return gerer_agenda_temps(instruction)
+def gerer_documents_avec_lambda(instruction: str) -> str:
+    from lambda_agent import gerer_documents
+    return gerer_documents(instruction)
 OUTILS_DISPONIBLES ={
     "lire_fichier": lire_fichier,
     "ecrire_fichier": ecrire_fichier,
@@ -357,4 +438,11 @@ OUTILS_DISPONIBLES ={
     "resoudre_avec_grio": resoudre_avec_grio,
     "gerer_revisions_avec_delta": gerer_revisions_avec_delta,
     "gerer_agenda_temps_avec_gamma": gerer_agenda_temps_avec_gamma,
+    "lire_docx": lire_docx,
+    "ecrire_docx": ecrire_docx,
+    "lire_excel": lire_excel,
+    "ecrire_excel": ecrire_excel,
+    "lire_pptx": lire_pptx,
+    "creer_pptx": creer_pptx,
+    "gerer_documents_avec_lambda": gerer_documents_avec_lambda,
 }
