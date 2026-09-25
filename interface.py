@@ -618,6 +618,14 @@ if not mode_vocal:
         mode = st.radio("Mode", ["Normal", "Équipe (recherche + rédaction + flashcards)"], label_visibility="collapsed")
         autoriser_actions = st.checkbox("Autoriser les actions sensibles")
         fichier_uploade = st.file_uploader("Déposer un PDF", type="pdf")
+        with st.sidebar.expander("🤖 Délégations récentes"):
+                try:
+                    with open("delegations.log", "r", encoding="utf-8") as f:
+                        lignes = f.read().strip().split("\n")
+                    dernieres = "\n".join(lignes[-20:])
+                    st.text(dernieres if dernieres else "Aucune délégation pour l'instant.")
+                except FileNotFoundError:
+                    st.text("Aucune délégation pour l'instant.")
         if fichier_uploade:
             with open(f"upload_{fichier_uploade.name}", "wb") as f:
                 f.write(fichier_uploade.getbuffer())

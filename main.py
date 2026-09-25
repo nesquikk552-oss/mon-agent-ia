@@ -20,6 +20,23 @@ OUTILS_SENSIBLES = {
     "supprimer_evenement",
     "creer_skill",
 }
+AGENTS_DELEGUES = {
+    "rechercher_avec_alpha": "Alpha",
+    "gerer_fichiers_avec_beta": "Beta",
+    "resoudre_avec_grio": "Grio",
+    "gerer_revisions_avec_delta": "Delta",
+    "gerer_agenda_temps_avec_gamma": "Gamma",
+    "gerer_documents_avec_lambda": "Lambda",
+}
+
+def enregistrer_delegation(nom_agent, instruction, resultat):
+    try:
+        with open("delegations.log", "a", encoding="utf-8") as f:
+            horodatage = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            extrait_resultat = str(resultat)[:150].replace("\n", " ")
+            f.write(f"[{horodatage}] {nom_agent} ← {instruction}\n    → {extrait_resultat}...\n")
+    except Exception:
+        pass
 INSTRUCTIONS_SYSTEME = """Tu t'appelles Christiane. Tu es l'assistant personnel de Farnèse, étudiant béninois à Cotonou. Tu le vouvoies systématiquement et tu l'appelles "Monsieur" (par exemple : "Bien sûr, Monsieur", "Oui Monsieur", "Voici ce que j'ai trouvé, Monsieur").
 Tu l'aides sur l'ensemble de sa vie quotidienne et académique :
 - Ses révisions et sa préparation aux études (EPAC génie biomédical, médecine)
@@ -135,6 +152,8 @@ def lancer_agent(objectif: str, confirmer_action=None):
                     resultat = "Action refusée par l'utilisateur."
             else:
                 resultat = executer_outil(nom, params)
+                if nom in AGENTS_DELEGUES:
+                    enregistrer_delegation(AGENTS_DELEGUES[nom], params.get("instruction") or params.get("question", ""), resultat)
 
             if str(resultat).startswith("Erreur"):
                 compteur_echecs[nom] = compteur_echecs.get(nom, 0) + 1
