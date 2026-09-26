@@ -2,7 +2,7 @@ from groq import Groq
 import os
 import json
 from dotenv import load_dotenv
-from outils import calculer, convertir_unite, resoudre_equation, calculer_statistiques, tracer_graphique
+from outils import calculer, convertir_unite, resoudre_equation, calculer_statistiques, tracer_graphique, calcul_matriciel
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -12,7 +12,8 @@ OUTILS_GRIO = {
     "convertir_unite": convertir_unite,
     "resoudre_equation": resoudre_equation,
     "calculer_statistiques": calculer_statistiques,
-    "tracer_graphique": tracer_graphique 
+    "tracer_graphique": tracer_graphique,
+    "calcul_matriciel": calcul_matriciel
 }
 
 
@@ -78,7 +79,7 @@ SCHEMA_GRIO = [
             }
         }
     },
-    {
+   {
         "type": "function",
         "function": {
             "name": "tracer_graphique",
@@ -92,6 +93,30 @@ SCHEMA_GRIO = [
                     "x_max": {"type": "number", "description": "Borne maximale de l'axe x, par défaut 10"}
                 },
                 "required": ["expression"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "calcul_matriciel",
+            "description": "Effectue une opération sur des matrices : déterminant, inverse, multiplication ou transposée",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "operation": {"type": "string", "description": "L'opération à effectuer : 'determinant', 'inverse', 'multiplication' ou 'transposee'"},
+                    "matrice_a": {
+                        "type": "array",
+                        "items": {"type": "array", "items": {"type": "number"}},
+                        "description": "La première matrice, ex: [[1, 2], [3, 4]]"
+                    },
+                    "matrice_b": {
+                        "type": "array",
+                        "items": {"type": "array", "items": {"type": "number"}},
+                        "description": "La seconde matrice, requise uniquement pour la multiplication"
+                    }
+                },
+                "required": ["operation", "matrice_a"]
             }
         }
     }

@@ -94,6 +94,35 @@ def tracer_graphique(expression: str, variable: str = "x", x_min: float = -10, x
         return f"Graphique généré avec succès et enregistré sous {nom_fichier}."
     except Exception as e:
         return f"Erreur lors du tracé du graphique : {e}"
+def calcul_matriciel(operation: str, matrice_a: list, matrice_b: list = None) -> str:
+    try:
+        import numpy as np
+        A = np.array(matrice_a)
+
+        if operation == "determinant":
+            resultat = np.linalg.det(A)
+            return f"Déterminant : {round(float(resultat), 4)}"
+
+        elif operation == "inverse":
+            resultat = np.linalg.inv(A)
+            return f"Matrice inverse :\n{resultat.tolist()}"
+
+        elif operation == "multiplication":
+            if matrice_b is None:
+                return "Erreur : une seconde matrice (matrice_b) est requise pour la multiplication."
+            B = np.array(matrice_b)
+            resultat = np.matmul(A, B)
+            return f"Résultat de la multiplication :\n{resultat.tolist()}"
+
+        elif operation == "transposee":
+            resultat = A.T
+            return f"Matrice transposée :\n{resultat.tolist()}"
+
+        else:
+            return f"Opération inconnue : {operation}. Utilise 'determinant', 'inverse', 'multiplication' ou 'transposee'."
+
+    except Exception as e:
+        return f"Erreur lors du calcul matriciel : {e}"
 def ajouter_a_memoire(information: str, categorie: str = "general") -> str:
     try:
         ligne = f"[{categorie}] {information}"
