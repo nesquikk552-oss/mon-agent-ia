@@ -63,6 +63,37 @@ def calculer_statistiques(valeurs: list) -> str:
         return ", ".join(f"{cle} : {round(valeur, 4)}" for cle, valeur in resultats.items())
     except Exception as e:
         return f"Erreur lors du calcul statistique : {e}"
+def tracer_graphique(expression: str, variable: str = "x", x_min: float = -10, x_max: float = 10) -> str:
+    try:
+        import sympy
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        import numpy as np
+
+        var = sympy.Symbol(variable)
+        expr = sympy.sympify(expression)
+        fonction_numerique = sympy.lambdify(var, expr, "numpy")
+
+        x_valeurs = np.linspace(x_min, x_max, 400)
+        y_valeurs = fonction_numerique(x_valeurs)
+
+        plt.figure(figsize=(6, 4))
+        plt.plot(x_valeurs, y_valeurs)
+        plt.axhline(0, color="black", linewidth=0.5)
+        plt.axvline(0, color="black", linewidth=0.5)
+        plt.grid(True, linestyle="--", alpha=0.5)
+        plt.title(f"f({variable}) = {expression}")
+        plt.xlabel(variable)
+        plt.ylabel(f"f({variable})")
+
+        nom_fichier = "graphique_grio.png"
+        plt.savefig(nom_fichier)
+        plt.close()
+
+        return f"Graphique généré avec succès et enregistré sous {nom_fichier}."
+    except Exception as e:
+        return f"Erreur lors du tracé du graphique : {e}"
 def ajouter_a_memoire(information: str, categorie: str = "general") -> str:
     try:
         ligne = f"[{categorie}] {information}"

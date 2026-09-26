@@ -2,7 +2,7 @@ from groq import Groq
 import os
 import json
 from dotenv import load_dotenv
-from outils import calculer, convertir_unite, resoudre_equation, calculer_statistiques
+from outils import calculer, convertir_unite, resoudre_equation, calculer_statistiques, tracer_graphique
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -11,7 +11,8 @@ OUTILS_GRIO = {
     "calculer": calculer,
     "convertir_unite": convertir_unite,
     "resoudre_equation": resoudre_equation,
-    "calculer_statistiques": calculer_statistiques
+    "calculer_statistiques": calculer_statistiques,
+    "tracer_graphique": tracer_graphique 
 }
 
 
@@ -74,6 +75,23 @@ SCHEMA_GRIO = [
                     }
                 },
                 "required": ["valeurs"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "tracer_graphique",
+            "description": "Trace le graphique d'une fonction mathématique et l'enregistre en image",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "expression": {"type": "string", "description": "L'expression de la fonction, ex: 'x**2 - 3*x + 2'"},
+                    "variable": {"type": "string", "description": "La variable de la fonction, par défaut 'x'"},
+                    "x_min": {"type": "number", "description": "Borne minimale de l'axe x, par défaut -10"},
+                    "x_max": {"type": "number", "description": "Borne maximale de l'axe x, par défaut 10"}
+                },
+                "required": ["expression"]
             }
         }
     }
