@@ -2,7 +2,7 @@ from groq import Groq
 import os
 import json
 from dotenv import load_dotenv
-from outils import calculer, convertir_unite, resoudre_equation
+from outils import calculer, convertir_unite, resoudre_equation, calculer_statistiques
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -11,6 +11,7 @@ OUTILS_GRIO = {
     "calculer": calculer,
     "convertir_unite": convertir_unite,
     "resoudre_equation": resoudre_equation,
+    "calculer_statistiques": calculer_statistiques
 }
 
 
@@ -55,6 +56,24 @@ SCHEMA_GRIO = [
                     "variable": {"type": "string", "description": "La variable à isoler, par défaut 'x'"}
                 },
                 "required": ["equation"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "calculer_statistiques",
+            "description": "Calcule la moyenne, médiane, écart-type, minimum et maximum d'une liste de valeurs numériques",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "valeurs": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "description": "La liste des valeurs numériques à analyser"
+                    }
+                },
+                "required": ["valeurs"]
             }
         }
     }

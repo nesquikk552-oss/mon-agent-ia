@@ -1,0 +1,14 @@
+- Erreur : L’écart‑type indiqué (≈ 3,19) a été calculé avec le dénominateur \(N-1\) (c’est‑à‑dire comme un écart‑type **échantillon**), mais le texte indique « population », ce qui est incohérent. → Correction : | Statistique | Valeur |
+|-------------|--------|
+| **Moyenne** | **13,17** (≈ 13,1667) |
+| **Médiane** | **13,00** |
+| **Écart‑type (population)** | **2,91** (≈ 2,910) |
+| **Écart‑type (échantillon)** | **3,19** (≈ 3,188) |
+| Minimum | 9 |
+| Maximum | 18 |
+
+**Calculs rapides** :
+
+- Moyenne \(\bar{x}= \frac{12+15+9+18+14+11}{6}= \frac{79}{6}\approx13{,}1667\).  
+- Médiane : valeurs triées \(9,11,12,14,15,18\); \((12+14)/2 = 13\).  
+- Somme des carrés des écarts : \(\sum (x_i-\bar{x})^{2}=50

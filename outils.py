@@ -48,6 +48,21 @@ def resoudre_equation(equation: str, variable: str = "x") -> str:
         return f"Solution(s) pour {variable} : " + ", ".join(str(s) for s in solutions)
     except Exception as e:
         return f"Erreur lors de la résolution : {e}"
+    
+def calculer_statistiques(valeurs: list) -> str:
+    try:
+        import statistics
+        nombres = [float(v) for v in valeurs]
+        resultats = {
+            "moyenne": statistics.mean(nombres),
+            "médiane": statistics.median(nombres),
+            "écart-type": statistics.stdev(nombres) if len(nombres) > 1 else 0,
+            "minimum": min(nombres),
+            "maximum": max(nombres),
+        }
+        return ", ".join(f"{cle} : {round(valeur, 4)}" for cle, valeur in resultats.items())
+    except Exception as e:
+        return f"Erreur lors du calcul statistique : {e}"
 def ajouter_a_memoire(information: str, categorie: str = "general") -> str:
     try:
         ligne = f"[{categorie}] {information}"
