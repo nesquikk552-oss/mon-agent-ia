@@ -2,7 +2,7 @@ from groq import Groq
 import os
 import json
 from dotenv import load_dotenv
-from outils import calculer, convertir_unite
+from outils import calculer, convertir_unite, resoudre_equation
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -10,7 +10,9 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 OUTILS_GRIO = {
     "calculer": calculer,
     "convertir_unite": convertir_unite,
+    "resoudre_equation": resoudre_equation,
 }
+
 
 SCHEMA_GRIO = [
     {
@@ -40,8 +42,25 @@ SCHEMA_GRIO = [
                 "required": ["valeur", "de_unite", "vers_unite"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "resoudre_equation",
+            "description": "Résout une équation mathématique symbolique (ex: '2*x + 5 = 15') et renvoie la ou les solutions exactes",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "equation": {"type": "string", "description": "L'équation à résoudre, ex: '2*x + 5 = 15' ou 'x**2 - 4'"},
+                    "variable": {"type": "string", "description": "La variable à isoler, par défaut 'x'"}
+                },
+                "required": ["equation"]
+            }
+        }
     }
 ]
+
+
 
 def charger_lecons() -> str:
     try:

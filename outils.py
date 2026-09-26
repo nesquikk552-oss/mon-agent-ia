@@ -33,6 +33,21 @@ def calculer(expression: str) -> str:
         return str(resultat)
     except Exception as e:
         return f"Erreur de calcul : {e}"
+def resoudre_equation(equation: str, variable: str = "x") -> str:
+    try:
+        import sympy
+        var = sympy.Symbol(variable)
+        if "=" in equation:
+            gauche, droite = equation.split("=")
+            expr = sympy.Eq(sympy.sympify(gauche), sympy.sympify(droite))
+        else:
+            expr = sympy.sympify(equation)
+        solutions = sympy.solve(expr, var)
+        if not solutions:
+            return "Aucune solution trouvée."
+        return f"Solution(s) pour {variable} : " + ", ".join(str(s) for s in solutions)
+    except Exception as e:
+        return f"Erreur lors de la résolution : {e}"
 def ajouter_a_memoire(information: str, categorie: str = "general") -> str:
     try:
         ligne = f"[{categorie}] {information}"

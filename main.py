@@ -86,13 +86,34 @@ def executer_outil(nom, params, tentative=1):
         message = f"Erreur lors de l'exécution de {nom} : {e}"
         enregistrer_erreur(nom, params, message)
         return message
+def charger_lecons_christiane() -> str:
+    try:
+        with open("christiane_lecons.txt", "r", encoding="utf-8") as f:
+            lignes = [l for l in f.read().split("\n") if l.strip()]
+        if not lignes:
+            return ""
+        dernieres = lignes[-15:]
+        return "Leçons tirées de tes erreurs passées, à ne pas répéter :\n" + "\n".join(dernieres)
+    except FileNotFoundError:
+        return ""
 
+def enregistrer_lecon_christiane(erreur: str, correction: str):
+    try:
+        with open("christiane_lecons.txt", "a", encoding="utf-8") as f:
+            f.write(f"- Erreur : {erreur} → Correction : {correction}\n")
+    except Exception:
+        pass
 def lancer_agent(objectif: str, confirmer_action=None):
     if confirmer_action is None:
         confirmer_action = lambda: input("Confirmer l'écriture ? (o/n) : ").lower() == "o"
 
+    lecons_christiane = charger_lecons_christiane()
+    instructions_completes = INSTRUCTIONS_SYSTEME
+    if lecons_christiane:
+        instructions_completes += f"\n\n{lecons_christiane}"
+
     messages = [
-        {"role": "system", "content": INSTRUCTIONS_SYSTEME},
+        {"role": "system", "content": instructions_completes},
         {"role": "user", "content": objectif}
     ]
     compteur_echecs = {}
@@ -176,16 +197,44 @@ def lancer_agent(objectif: str, confirmer_action=None):
         print("🛑 [Harnais] Limite d'itérations atteinte. Arrêt de sécurité.")
         journal.append("Limite d'itérations atteinte.")
 
+
     try:
         condenser_memoire_si_necessaire(client)
     except Exception:
         pass
 
+    if reponse_finale:
+        try:
+            verification = client.chat.completions.create(
+                model="openai/gpt-oss-120b",
+                messages=[{
+                    "role": "user",
+                    "content": (
+                        f"Voici une réponse que tu as donnée à la question '{objectif}' :\n\n"
+                        f"{reponse_finale}\n\n"
+                        f"Vérifie rigoureusement les faits, calculs ou raisonnements présents. "
+                        f"Si tout est correct, réponds uniquement 'CORRECT'. "
+                        f"Si tu trouves une erreur factuelle ou logique claire, réponds au format exact suivant :\n"
+                        f"ERREUR: <description brève de l'erreur>\n"
+                        f"CORRECTION: <la réponse corrigée complète>"
+                    )
+                }],
+                max_tokens=1024
+            )
+            contenu_verif = verification.choices[0].message.content.strip()
+
+            if contenu_verif.startswith("ERREUR"):
+                partie_erreur = contenu_verif.split("CORRECTION:")[0].replace("ERREUR:", "").strip()
+                partie_correction = contenu_verif.split("CORRECTION:")[1].strip()
+                enregistrer_lecon_christiane(partie_erreur, partie_correction)
+                reponse_finale = partie_correction
+        except Exception:
+            pass
+
     return {
         "reponse": reponse_finale,
         "journal": "\n".join(journal)
     }
-
 
 if __name__ == "__main__":
     try:

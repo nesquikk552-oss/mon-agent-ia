@@ -11,7 +11,12 @@ import datetime as dt
 from main import lancer_agent, client
 from agents_multiples import lancer_equipe
 from streamlit_mic_recorder import speech_to_text
-
+def charger_image_base64(chemin_fichier):
+    try:
+        with open(chemin_fichier, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    except FileNotFoundError:
+        return ""
 def charger_carte_monde_base64(chemin="carte_monde.png"):
     try:
         with open(chemin, "rb") as f:
@@ -648,7 +653,6 @@ if mode_vocal:
         st.audio("salutation_audio.mp3", autoplay=True)
     st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
 
-st.markdown("<div class='zone-vocale'>", unsafe_allow_html=True)
 components.html(globe_anime_html(300, parlant=st.session_state.parlant_vocal), height=320)
 st.markdown("</div>", unsafe_allow_html=True)
 col_g, col_c, col_d = st.columns([1, 1, 1])
@@ -676,13 +680,14 @@ if question_vocale_seule:
 else:
     logo_hero = f"<img src='data:image/png;base64,{logo_b64}' width='70'>" if logo_b64 else "<span class='logo-globe'>🌐</span>"
     st.markdown(f"""
-<div class='hero-accueil'>
+    logo_grio_b64 = charger_image_base64("grio_logo.png")
+    <div class='hero-accueil'>
     {logo_hero}
     <div class='sous-titre'>Bon retour</div>
     <h1>Que puis-je faire pour vous aujourd'hui ?</h1>
     <div class='badge-alpha'><span class='lettre-alpha'>Αα</span> Alpha, assistant de recherche, actif</div>
     <div class='badge-beta'><span class='lettre-beta'>Ββ</span> Beta, assistant fichiers, actif</div>
-    <div class='badge-grio'><img src='data:image/png;base64,{logo_grio_b64}'> Grio, assistant mathématiques, actif</div>
+    <div class='badge-grio'><img src='data:image/png;base64,{logo_grio_b64}' width='24' style='border-radius: 6px; object-fit: cover; vertical-align: middle;'> Grio, assistant mathématiques, actif</div>
     <div class='badge-delta'><span class='lettre-delta'>Δδ</span> Delta, assistant révisions, actif</div>
     <div class='badge-gamma'><span class='lettre-gamma'>Γγ</span> Gamma, assistant agenda et météo, actif</div>
     <div class='badge-lambda'><span class='lettre-lambda'>Λλ</span> Lambda, assistant documents, actif</div>
