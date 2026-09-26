@@ -28,7 +28,7 @@ AGENTS_DELEGUES = {
     "gerer_agenda_temps_avec_gamma": "Gamma",
     "gerer_documents_avec_lambda": "Lambda",
 }
-
+MAX_DELEGATIONS = 4
 def enregistrer_delegation(nom_agent, instruction, resultat):
     try:
         with open("delegations.log", "a", encoding="utf-8") as f:
@@ -96,6 +96,7 @@ def lancer_agent(objectif: str, confirmer_action=None):
         {"role": "user", "content": objectif}
     ]
     compteur_echecs = {}
+    compteur_delegations = 0
     journal = []
     reponse_finale = ""
 
@@ -145,6 +146,11 @@ def lancer_agent(objectif: str, confirmer_action=None):
 
             if compteur_echecs.get(nom, 0) >= 3:
                 resultat = f"L'outil {nom} a échoué 3 fois, abandon de cette action."
+            elif nom in AGENTS_DELEGUES and compteur_delegations >= MAX_DELEGATIONS:
+                resultat = f"Limite de {MAX_DELEGATIONS} délégations atteinte pour cette conversation. Réponds directement avec les informations déjà obtenues."
+            elif nom in AGENTS_DELEGUES:
+                compteur_delegations += 1
+                resultat = executer_outil(nom, params)
             elif nom in OUTILS_SENSIBLES:
                 if confirmer_action():
                     resultat = executer_outil(nom, params)
