@@ -5,3 +5,4 @@ __pycache__/
 memoire.txt
 erreurs.log
 flashcards.txt
+clonage_voix/env_voix/

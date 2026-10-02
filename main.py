@@ -31,6 +31,14 @@ AGENTS_DELEGUES = {
 MAX_DELEGATIONS = 4
 def enregistrer_delegation(nom_agent, instruction, resultat):
     try:
+        with open("delegations.log", "r", encoding="utf-8") as f:
+            lignes = f.readlines()
+        if len(lignes) > 500:
+            with open("delegations.log", "w", encoding="utf-8") as f:
+                f.writelines(lignes[-500:])
+    except FileNotFoundError:
+        pass
+
         with open("delegations.log", "a", encoding="utf-8") as f:
             horodatage = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             extrait_resultat = str(resultat)[:150].replace("\n", " ")
