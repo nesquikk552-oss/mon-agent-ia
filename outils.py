@@ -56,7 +56,8 @@ def calculer_statistiques(valeurs: list) -> str:
         resultats = {
             "moyenne": statistics.mean(nombres),
             "médiane": statistics.median(nombres),
-            "écart-type": statistics.stdev(nombres) if len(nombres) > 1 else 0,
+            "écart-type échantillon (n-1)": statistics.stdev(nombres) if len(nombres) > 1 else 0,
+            "écart-type population (n)": statistics.pstdev(nombres),
             "minimum": min(nombres),
             "maximum": max(nombres),
         }
@@ -494,8 +495,8 @@ def enrichir_avec_contexte(instruction: str) -> str:
         return f"Contexte sur Monsieur Farnèse :\n{contexte}\n\nDemande : {instruction}"
     return instruction
 def rechercher_avec_alpha(question: str) -> str:
-    from alpha_agent import collecter_informations
-    return collecter_informations(enrichir_avec_contexte(question))
+    from alpha_agent import rechercher_avec_agent
+    return rechercher_avec_agent(enrichir_avec_contexte(question))
 
 def gerer_fichiers_avec_beta(instruction: str) -> str:
     from beta_agent import gerer_fichiers
@@ -516,6 +517,79 @@ def gerer_agenda_temps_avec_gamma(instruction: str) -> str:
 def gerer_documents_avec_lambda(instruction: str) -> str:
     from lambda_agent import gerer_documents
     return gerer_documents(enrichir_avec_contexte(instruction))
+def _sur_serveur_en_ligne() -> bool:
+    return bool(os.getenv("RENDER"))  # Render définit cette variable
+
+
+def ouvrir_navigateur(cible: str) -> str:
+    if _sur_serveur_en_ligne():
+        return "Erreur : le navigateur n'est accessible que sur le PC de Monsieur."
+    try:
+        import webbrowser
+        from urllib.parse import quote_plus
+        if cible.startswith(("http://", "https://")):
+            url = cible
+        else:
+            url = "https://www.google.com/search?q=" + quote_plus(cible)
+        webbrowser.open(url)
+        return f"Navigateur ouvert sur : {url}"
+    except Exception as e:
+        return f"Erreur : {e}"
+
+
+def lire_page_web(url: str) -> str:
+    try:
+        import html as _html
+        import re
+        if not url.startswith(("http://", "https://")):
+            return "Erreur : l'URL doit commencer par http:// ou https://"
+        reponse = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
+        reponse.raise_for_status()
+        texte = re.sub(r"(?is)<(script|style|noscript).*?</\1>", " ", reponse.text)
+        texte = re.sub(r"(?s)<[^>]+>", " ", texte)
+        texte = _html.unescape(re.sub(r"\s+", " ", texte)).strip()
+        return texte[:5000]
+    except Exception as e:
+        return f"Erreur : {e}"
+
+
+def ouvrir_explorateur(chemin: str = ".") -> str:
+    if _sur_serveur_en_ligne():
+        return "Erreur : l'Explorateur n'est accessible que sur le PC de Monsieur."
+    try:
+        import subprocess
+        chemin = os.path.abspath(os.path.expanduser(chemin))
+        if not os.path.exists(chemin):
+            return f"Erreur : chemin introuvable ({chemin})."
+        if os.path.isfile(chemin):
+            subprocess.Popen(["explorer", "/select,", chemin])
+        else:
+            os.startfile(chemin)
+        return f"Explorateur ouvert sur : {chemin}"
+    except Exception as e:
+        return f"Erreur : {e}"
+
+
+def rechercher_fichiers(motif: str, dossier: str = "") -> str:
+    try:
+        import time
+        racine = os.path.expanduser(dossier) if dossier else os.path.expanduser("~")
+        motif = motif.lower()
+        ignores = {"node_modules", "__pycache__", "env", "env_voix", "AppData", "site-packages"}
+        trouves = []
+        debut = time.time()
+        for chemin, dossiers, fichiers in os.walk(racine):
+            dossiers[:] = [d for d in dossiers if not d.startswith(".") and d not in ignores]
+            for nom in fichiers:
+                if motif in nom.lower():
+                    trouves.append(os.path.join(chemin, nom))
+            if len(trouves) >= 30 or time.time() - debut > 15:
+                break
+        if not trouves:
+            return f"Aucun fichier contenant '{motif}' trouvé dans {racine}."
+        return "\n".join(trouves[:30])
+    except Exception as e:
+        return f"Erreur : {e}"
 OUTILS_DISPONIBLES ={
     "lire_fichier": lire_fichier,
     "ecrire_fichier": ecrire_fichier,
@@ -531,13 +605,14 @@ OUTILS_DISPONIBLES ={
     "envoyer_email": envoyer_email,
     "resumer_memoire": resumer_memoire,
     "creer_skill": creer_skill,
+
     "lire_pdf": lire_pdf,
     "suivre_progression": suivre_progression,
     "voir_progression": voir_progression,
     "exporter_donnees": exporter_donnees,
     "planifier_revisions": planifier_revisions,
     "generer_qcm": generer_qcm,
-    "recherche_avec_alpha":rechercher_avec_alpha,
+    "rechercher_avec_alpha":rechercher_avec_alpha,
     "gerer_fichiers_avec_beta": gerer_fichiers_avec_beta,
     "resoudre_avec_grio": resoudre_avec_grio,
     "gerer_revisions_avec_delta": gerer_revisions_avec_delta,

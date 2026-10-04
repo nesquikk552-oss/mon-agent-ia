@@ -65,7 +65,7 @@ SCHEMA_GRIO = [
         "type": "function",
         "function": {
             "name": "calculer_statistiques",
-            "description": "Calcule la moyenne, médiane, écart-type, minimum et maximum d'une liste de valeurs numériques",
+            "description": "Calcule la moyenne, médiane, écart-type (échantillon ET population), minimum et maximum d'une liste de valeurs numériques",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -119,7 +119,7 @@ SCHEMA_GRIO = [
                 "required": ["operation", "matrice_a"]
             }
         }
-    }
+    },
 ]
 
 
@@ -141,7 +141,45 @@ def enregistrer_lecon(erreur: str, correction: str):
             f.write(f"- Erreur : {erreur} → Correction : {correction}\n")
     except Exception:
         pass
+def verifier_avec_outils(instruction: str, reponse_brute: str) -> str:
+    """Refait les calculs avec les outils. Retourne 'CORRECT' ou 'ERREUR: ... CORRECTION: ...'."""
+    messages = [
+        {"role": "system", "content": (
+            "Tu es un vérificateur mathématique rigoureux. Refais les calculs avec les outils "
+            "(calculer, resoudre_equation, calculer_statistiques, calcul_matriciel) au lieu de te fier au texte."
+        )},
+        {"role": "user", "content": (
+            f"Voici une réponse mathématique à la question '{instruction}' :\n\n"
+            f"{reponse_brute}\n\n"
+            f"Vérifie rigoureusement chaque calcul et chaque étape, en recalculant avec les outils. "
+            f"Si tout est correct, réponds uniquement 'CORRECT'. "
+            f"Si tu trouves une erreur, réponds au format exact suivant :\n"
+            f"ERREUR: <description brève de l'erreur>\n"
+            f"CORRECTION: <la réponse corrigée complète>"
+        )},
+    ]
+    for _ in range(5):
+        reponse = client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            messages=messages,
+            tools=SCHEMA_GRIO,
+            max_tokens=4096
+        )
+        message = reponse.choices[0].message
+        messages.append(message)
 
+        if not message.tool_calls:
+            return (message.content or "").strip()
+
+        for appel in message.tool_calls:
+            fonction = OUTILS_GRIO.get(appel.function.name)
+            try:
+                params = json.loads(appel.function.arguments)
+                resultat = fonction(**params) if fonction else f"Outil inconnu : {appel.function.name}"
+            except Exception as e:
+                resultat = f"Erreur : {e}"
+            messages.append({"role": "tool", "tool_call_id": appel.id, "content": str(resultat)})
+    return "CORRECT"  # limite atteinte : on garde la réponse d'origine
 def resoudre_mathematiques(instruction: str) -> str:
     lecons = charger_lecons()
     instructions_systeme = (
@@ -165,7 +203,7 @@ def resoudre_mathematiques(instruction: str) -> str:
             model="openai/gpt-oss-120b",
             messages=messages,
             tools=SCHEMA_GRIO,
-            max_tokens=1024
+            max_tokens=2048
         )
         message = reponse.choices[0].message
         messages.append(message)
@@ -196,24 +234,8 @@ def resoudre_mathematiques(instruction: str) -> str:
     else:
         return "Grio a atteint la limite d'itérations sans conclure."
 
-    # Auto-vérification : Grio se relit avant de répondre définitivement
-    verification = client.chat.completions.create(
-        model="openai/gpt-oss-120b",
-        messages=[{
-            "role": "user",
-            "content": (
-                f"Voici une réponse mathématique que tu as produite à la question '{instruction}' :\n\n"
-                f"{reponse_brute}\n\n"
-                f"Vérifie rigoureusement chaque calcul et chaque étape. "
-                f"Si tout est correct, réponds uniquement 'CORRECT'. "
-                f"Si tu trouves une erreur, réponds au format exact suivant :\n"
-                f"ERREUR: <description brève de l'erreur>\n"
-                f"CORRECTION: <la réponse corrigée complète>"
-            )
-        }],
-        max_tokens=1024
-    )
-    contenu_verif = verification.choices[0].message.content.strip()
+       # Auto-vérification : Grio refait les calculs avec ses outils
+    contenu_verif = verifier_avec_outils(instruction, reponse_brute)
 
     if contenu_verif.startswith("ERREUR"):
         try:

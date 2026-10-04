@@ -1,4 +1,4 @@
-from outils import lire_fichier, ecrire_fichier, lire_pdf, lire_docx, ecrire_docx, lire_excel, ecrire_excel, lire_pptx, creer_pptx
+from outils import lire_fichier, ecrire_fichier, lire_pdf, lire_docx, ecrire_docx, lire_excel, ecrire_excel, lire_pptx, creer_pptx, ouvrir_explorateur, rechercher_fichiers
 from sous_agent_commun import executer_sous_agent
 
 OUTILS_LAMBDA = {
@@ -10,7 +10,9 @@ OUTILS_LAMBDA = {
     "lire_excel": lire_excel,
     "ecrire_excel": ecrire_excel,
     "lire_pptx": lire_pptx,
-    "creer_pptx": creer_pptx,
+    "creer_pptx": creer_pptx,    
+    "ouvrir_explorateur": ouvrir_explorateur,
+    "rechercher_fichiers": rechercher_fichiers,
 }
 
 SCHEMA_LAMBDA = [
@@ -23,6 +25,8 @@ SCHEMA_LAMBDA = [
     {"type": "function", "function": {"name": "ecrire_excel", "description": "Crée un fichier Excel (.xlsx)", "parameters": {"type": "object", "properties": {"chemin": {"type": "string"}, "donnees": {"type": "string"}, "feuille": {"type": "string"}}, "required": ["chemin", "donnees"]}}},
     {"type": "function", "function": {"name": "lire_pptx", "description": "Lit le contenu d'une présentation PowerPoint (.pptx)", "parameters": {"type": "object", "properties": {"chemin": {"type": "string"}}, "required": ["chemin"]}}},
     {"type": "function", "function": {"name": "creer_pptx", "description": "Crée une présentation PowerPoint (.pptx) simple", "parameters": {"type": "object", "properties": {"chemin": {"type": "string"}, "titre": {"type": "string"}, "contenu": {"type": "string"}}, "required": ["chemin", "titre", "contenu"]}}},
+    {"type": "function", "function": {"name": "ouvrir_explorateur", "description": "Ouvre l'Explorateur de fichiers Windows sur un dossier, ou sélectionne un fichier, sur l'écran de Monsieur", "parameters": {"type": "object", "properties": {"chemin": {"type": "string"}}, "required": ["chemin"]}}},
+    {"type": "function", "function": {"name": "rechercher_fichiers", "description": "Cherche des fichiers par nom sur le PC (par défaut dans le dossier personnel de Monsieur)", "parameters": {"type": "object", "properties": {"motif": {"type": "string", "description": "Partie du nom du fichier"}, "dossier": {"type": "string", "description": "Dossier de départ, optionnel"}}, "required": ["motif"]}}},
 ]
 
 def gerer_documents(instruction: str) -> str:

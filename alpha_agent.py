@@ -1,6 +1,8 @@
 from ddgs import DDGS
 from groq import Groq
 import os
+from sous_agent_commun import executer_sous_agent
+from outils import lire_page_web, ouvrir_navigateur
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -81,3 +83,22 @@ def collecter_informations(question, nombre_resultats=5):
         pass
 
     return reponse_brute
+OUTILS_ALPHA = {
+    "rechercher_sur_le_web": collecter_informations,
+    "lire_page_web": lire_page_web,
+    "ouvrir_navigateur": ouvrir_navigateur,
+}
+
+SCHEMA_ALPHA = [
+    {"type": "function", "function": {"name": "rechercher_sur_le_web", "description": "Recherche sur le web et renvoie une synthèse vérifiée et sourcée", "parameters": {"type": "object", "properties": {"question": {"type": "string"}}, "required": ["question"]}}},
+    {"type": "function", "function": {"name": "lire_page_web", "description": "Lit le texte d'une page web précise à partir de son URL", "parameters": {"type": "object", "properties": {"url": {"type": "string"}}, "required": ["url"]}}},
+    {"type": "function", "function": {"name": "ouvrir_navigateur", "description": "Ouvre une page ou une recherche dans le navigateur de Monsieur, sur son écran", "parameters": {"type": "object", "properties": {"cible": {"type": "string", "description": "Une URL complète, ou des mots-clés pour lancer une recherche Google"}}, "required": ["cible"]}}},
+]
+
+def rechercher_avec_agent(question: str) -> str:
+    instructions_systeme = (
+        "Tu es Alpha, un agent de recherche. Utilise rechercher_sur_le_web pour les questions générales, "
+        "lire_page_web quand une URL précise doit être lue, et ouvrir_navigateur uniquement si Monsieur "
+        "demande de voir ou d'ouvrir une page ou une recherche. Réponds de façon claire et sourcée."
+    )
+    return executer_sous_agent("Alpha", instructions_systeme, OUTILS_ALPHA, SCHEMA_ALPHA, question)

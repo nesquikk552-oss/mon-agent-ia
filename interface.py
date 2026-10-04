@@ -5,6 +5,7 @@ import json
 import os
 import re
 import subprocess
+from uuid import uuid4
 from datetime import datetime
 
 import edge_tts
@@ -482,7 +483,7 @@ def generer_audio(texte, chemin="reponse_audio.mp3"):
 # Connexion
 # ----------------------------------------------------------------------
 if "authentifie" not in st.session_state:
-    st.session_state.authentifie = not os.getenv("INTERFACE_MOT_DE_PASSE")
+    st.session_state.authentifie = False
 
 if not st.session_state.authentifie:
     st.markdown("<div class='fond-hud'></div>", unsafe_allow_html=True)
@@ -497,41 +498,83 @@ if not st.session_state.authentifie:
         with st.form("connexion"):  # Entrée valide le formulaire
             components.html(globe_anime_html(160), height=180)
             st.markdown("<h2 style='text-align:center; margin-top:-10px;'>Christiane</h2>", unsafe_allow_html=True)
-            mot_de_passe_saisi = st.text_input("Mot de passe", type="password")
+            mot_de_passe_attendu = os.getenv("INTERFACE_MOT_DE_PASSE")
+            mot_de_passe_saisi = (
+                st.text_input("Mot de passe", type="password") if mot_de_passe_attendu else ""
+            )
             bouton_connexion = st.form_submit_button("Se connecter")
 
-    if bouton_connexion:
-        mot_de_passe_attendu = os.getenv("INTERFACE_MOT_DE_PASSE")
-        if mot_de_passe_attendu and mot_de_passe_saisi == mot_de_passe_attendu:
-            st.session_state.authentifie = True
+        if bouton_connexion:
+            if not mot_de_passe_attendu or mot_de_passe_saisi == mot_de_passe_attendu:
+                st.session_state.authentifie = True
             st.rerun()
         else:
             st.error("Mot de passe incorrect")
-    st.stop()
-
 
 # ----------------------------------------------------------------------
 # Historique et skills
 # ----------------------------------------------------------------------
-def charger_historique():
+FICHIER_CONVERSATIONS = "conversations.json"
+
+
+def charger_conversations():
     try:
-        with open("historique.json", "r", encoding="utf-8") as f:
+        with open(FICHIER_CONVERSATIONS, "r", encoding="utf-8") as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
-        return []
+        pass
+    try:  # migration de l'ancien historique.json
+        with open("historique.json", "r", encoding="utf-8") as f:
+            anciens = json.load(f)
+        if anciens:
+            return [{"id": uuid4().hex, "titre": anciens[0]["question"][:40], "echanges": anciens}]
+    except (FileNotFoundError, json.JSONDecodeError, KeyError):
+        pass
+    return []
 
 
-def sauvegarder_historique(historique):
-    with open("historique.json", "w", encoding="utf-8") as f:
-        json.dump(historique, f, ensure_ascii=False, indent=2)
+def sauvegarder_conversations():
+    with open(FICHIER_CONVERSATIONS, "w", encoding="utf-8") as f:
+        json.dump(st.session_state.conversations, f, ensure_ascii=False, indent=2)
 
 
-if "historique" not in st.session_state:
-    st.session_state.historique = charger_historique()
+def conversation_active():
+    for conv in st.session_state.conversations:
+        if conv["id"] == st.session_state.conv_id:
+            return conv
+    return None
 
-skills_disponibles = []
-if os.path.exists("skills"):
-    skills_disponibles = [f.replace(".txt", "") for f in os.listdir("skills") if f.endswith(".txt")]
+
+def echanges_actifs():
+    conv = conversation_active()
+    return conv["echanges"] if conv else []
+
+def historique_pour_agent(max_echanges=6, max_car=1500):
+    """Derniers échanges de la conversation active, au format messages du modèle."""
+    tours = []
+    for e in echanges_actifs()[-max_echanges:]:
+        if e.get("reponse"):
+            tours.append({"role": "user", "content": e["question"]})
+            tours.append({"role": "assistant", "content": e["reponse"][:max_car]})
+    return tours
+def nouvelle_conversation():
+    st.session_state.conv_id = None
+
+
+def ouvrir_conversation(conv_id):
+    st.session_state.conv_id = conv_id
+
+
+def supprimer_conversation(conv_id):
+    st.session_state.conversations = [c for c in st.session_state.conversations if c["id"] != conv_id]
+    if st.session_state.conv_id == conv_id:
+        st.session_state.conv_id = None
+    sauvegarder_conversations()
+
+
+if "conversations" not in st.session_state:
+    st.session_state.conversations = charger_conversations()
+    st.session_state.conv_id = None
 
 
 def detecter_skill(objectif_utilisateur):
@@ -578,16 +621,26 @@ def traiter_question(question, mode_equipe, autoriser_actions_locales):
             except FileNotFoundError:
                 pass
         objectif_avec_skill = f"{instructions_skill}\n\n{question}" if instructions_skill else question
-        resultat = lancer_agent(objectif_avec_skill, confirmer_action=lambda: autoriser_actions_locales)
+        resultat = lancer_agent(
+            objectif_avec_skill,
+            confirmer_action=lambda: autoriser_actions_locales,
+            historique=historique_pour_agent(),
+        )
         reponse_texte = resultat["reponse"]
         journal = resultat["journal"]
         skill_utilise = skill_choisi or "aucun"
 
-    st.session_state.historique.append({
+        echange = {
         "question": question, "reponse": reponse_texte,
         "journal": journal, "skill": skill_utilise,
-    })
-    sauvegarder_historique(st.session_state.historique)
+    }
+    conv = conversation_active()
+    if conv is None:
+        conv = {"id": uuid4().hex, "titre": question[:40], "echanges": []}
+        st.session_state.conversations.insert(0, conv)
+        st.session_state.conv_id = conv["id"]
+    conv["echanges"].append(echange)
+    sauvegarder_conversations()
     audio_pret = generer_audio(nettoyer_texte_audio(reponse_texte))
     return reponse_texte, audio_pret
 
@@ -608,11 +661,7 @@ with st.sidebar:
     )
     st.markdown(f"<div class='sidebar-titre'>{logo_sidebar} Christiane</div>", unsafe_allow_html=True)
 
-    if st.button("🔄 Nouvelle conversation", use_container_width=True):
-        st.session_state.historique = []
-        sauvegarder_historique([])
-        st.rerun()
-
+    st.button("➕ New Chat", use_container_width=True, on_click=nouvelle_conversation)
     st.markdown("<div class='sidebar-section'>Mode</div>", unsafe_allow_html=True)
     mode_vocal = st.toggle("🎙️ Mode vocal uniquement", key="mode_vocal")
 
@@ -637,12 +686,7 @@ with st.sidebar:
                 f.write(fichier_uploade.getbuffer())
             st.success(f"{nom_fichier} prêt.")
 
-        st.markdown("<div class='sidebar-section'>Historique récent</div>", unsafe_allow_html=True)
-        for echange in list(reversed(st.session_state.historique))[:6]:
-            st.markdown(
-                f"<div class='historique-item'>{html.escape(echange['question'])}</div>",
-                unsafe_allow_html=True,
-            )
+        
 
 vient_dactiver_vocal = mode_vocal and not st.session_state.mode_vocal_precedent
 st.session_state.mode_vocal_precedent = mode_vocal
@@ -758,10 +802,26 @@ else:
             st.audio("reponse_audio.mp3", autoplay=True)
 
     # Conversation (les 8 derniers échanges, du plus ancien au plus récent)
-    for echange in st.session_state.historique[-8:]:
+    for echange in echanges_actifs():
         st.markdown(
             f"<div class='bulle-utilisateur'>{html.escape(echange['question'])}</div>",
             unsafe_allow_html=True,
         )
         with st.container(border=True):
             st.markdown(echange["reponse"])
+            # Liste des conversations (barre latérale) - à garder tout à la fin du fichier
+if not mode_vocal:
+    with st.sidebar:
+        st.markdown("<div class='sidebar-section'>Conversations</div>", unsafe_allow_html=True)
+        for conv in st.session_state.conversations:
+            col_titre, col_suppr = st.columns([5, 1])
+            with col_titre:
+                st.button(
+                    conv["titre"], key=f"conv_{conv['id']}", use_container_width=True,
+                    type="primary" if conv["id"] == st.session_state.conv_id else "secondary",
+                    on_click=ouvrir_conversation, args=(conv["id"],),
+                )
+            with col_suppr:
+                st.button("🗑️", key=f"suppr_{conv['id']}",
+                          on_click=supprimer_conversation, args=(conv["id"],))
+                

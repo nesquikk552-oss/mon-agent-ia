@@ -6,3 +6,5 @@ memoire.txt
 erreurs.log
 flashcards.txt
 clonage_voix/env_voix/
+conversations.json
+historique.json

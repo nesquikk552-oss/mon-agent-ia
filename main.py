@@ -111,7 +111,7 @@ def enregistrer_lecon_christiane(erreur: str, correction: str):
             f.write(f"- Erreur : {erreur} → Correction : {correction}\n")
     except Exception:
         pass
-def lancer_agent(objectif: str, confirmer_action=None):
+def lancer_agent(objectif: str, confirmer_action=None, historique=None):
     if confirmer_action is None:
         confirmer_action = lambda: input("Confirmer l'écriture ? (o/n) : ").lower() == "o"
 
@@ -120,10 +120,9 @@ def lancer_agent(objectif: str, confirmer_action=None):
     if lecons_christiane:
         instructions_completes += f"\n\n{lecons_christiane}"
 
-    messages = [
-        {"role": "system", "content": instructions_completes},
-        {"role": "user", "content": objectif}
-    ]
+    messages = [{"role": "system", "content": instructions_completes}]
+    messages.extend(historique or [])
+    messages.append({"role": "user", "content": objectif})
     compteur_echecs = {}
     compteur_delegations = 0
     journal = []
