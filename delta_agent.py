@@ -1,3 +1,4 @@
+from collaboration import suivre_agent, creer_outil_collaboration, schema_collaboration
 from outils import creer_flashcard, suivre_progression, voir_progression, planifier_revisions, generer_qcm
 from sous_agent_commun import executer_sous_agent, client
 
@@ -16,6 +17,10 @@ SCHEMA_DELTA = [
     {"type": "function", "function": {"name": "planifier_revisions", "description": "Crée un planning de révision réparti jusqu'à une date d'examen donnée", "parameters": {"type": "object", "properties": {"sujets": {"type": "string", "description": "Liste des sujets séparés par des virgules"}, "date_examen": {"type": "string", "description": "Date au format AAAA-MM-JJ"}}, "required": ["sujets", "date_examen"]}}},
     {"type": "function", "function": {"name": "generer_qcm", "description": "Génère un QCM à partir d'un texte donné", "parameters": {"type": "object", "properties": {"texte": {"type": "string"}, "nombre_questions": {"type": "integer"}}, "required": ["texte"]}}},
 ]
+OUTILS_DELTA["demander_a_un_agent"] = creer_outil_collaboration("Delta")
+SCHEMA_DELTA.append(schema_collaboration("Delta"))
+
+@suivre_agent("Delta")
 
 def charger_lecons_delta() -> str:
     try:

@@ -1,3 +1,4 @@
+from collaboration import suivre_agent, creer_outil_collaboration, schema_collaboration
 from ddgs import DDGS
 from groq import Groq
 import os
@@ -83,22 +84,39 @@ def collecter_informations(question, nombre_resultats=5):
         pass
 
     return reponse_brute
+def transmettre_a_lambda(instruction: str) -> str:
+    from lambda_agent import gerer_documents
+    return gerer_documents(instruction)
 OUTILS_ALPHA = {
     "rechercher_sur_le_web": collecter_informations,
     "lire_page_web": lire_page_web,
     "ouvrir_navigateur": ouvrir_navigateur,
+    "transmettre_a_lambda": transmettre_a_lambda,
 }
 
 SCHEMA_ALPHA = [
     {"type": "function", "function": {"name": "rechercher_sur_le_web", "description": "Recherche sur le web et renvoie une synthèse vérifiée et sourcée", "parameters": {"type": "object", "properties": {"question": {"type": "string"}}, "required": ["question"]}}},
     {"type": "function", "function": {"name": "lire_page_web", "description": "Lit le texte d'une page web précise à partir de son URL", "parameters": {"type": "object", "properties": {"url": {"type": "string"}}, "required": ["url"]}}},
     {"type": "function", "function": {"name": "ouvrir_navigateur", "description": "Ouvre une page ou une recherche dans le navigateur de Monsieur, sur son écran", "parameters": {"type": "object", "properties": {"cible": {"type": "string", "description": "Une URL complète, ou des mots-clés pour lancer une recherche Google"}}, "required": ["cible"]}}},
+    {"type": "function", "function": {"name": "transmettre_a_lambda", "description": "Confie à Lambda, l'agent des documents, la création d'un document Word contenant les informations rassemblées. L'instruction doit inclure le nom du fichier, le titre et TOUT le contenu à y ranger", "parameters": {"type": "object", "properties": {"instruction": {"type": "string"}}, "required": ["instruction"]}}},
 ]
+OUTILS_ALPHA["demander_a_un_agent"] = creer_outil_collaboration("Alpha")
+SCHEMA_ALPHA.append(schema_collaboration("Alpha"))
+
+@suivre_agent("Alpha")
 
 def rechercher_avec_agent(question: str) -> str:
     instructions_systeme = (
-        "Tu es Alpha, un agent de recherche. Utilise rechercher_sur_le_web pour les questions générales, "
-        "lire_page_web quand une URL précise doit être lue, et ouvrir_navigateur uniquement si Monsieur "
-        "demande de voir ou d'ouvrir une page ou une recherche. Réponds de façon claire et sourcée."
+        "Tu es Alpha, un agent de recherche. Utilise rechercher_sur_le_web pour les questions générales "
+        "(plusieurs fois, sous des angles différents, si Monsieur veut un dossier complet), lire_page_web "
+        "pour lire une URL précise, et ouvrir_navigateur quand Monsieur demande de voir ou d'ouvrir une "
+        "page ou une recherche. Si Monsieur demande d'enregistrer les informations dans un document Word, "
+        "rassemble d'abord les informations (au moins trois recherches ou pages), puis appelle "
+        "transmettre_a_lambda avec une instruction complète : le nom du fichier (ex: recherche_<sujet>.docx), "
+        "le titre, l'ordre de l'ouvrir ensuite avec l'Explorateur, et TOUT le contenu rassemblé, en texte brut "
+        "organisé en sections, sans symboles markdown. Tu n'écris jamais le document toi-même. "
+        "Commence ta réponse finale par un résumé oral de 4 à 5 phrases (400 caractères maximum, sans liste "
+        "ni symboles), puis indique le nom du document créé par Lambda. Réponds de façon claire et sourcée."
     )
-    return executer_sous_agent("Alpha", instructions_systeme, OUTILS_ALPHA, SCHEMA_ALPHA, question)
+    return executer_sous_agent("Alpha", instructions_systeme, OUTILS_ALPHA, SCHEMA_ALPHA, question,
+                               max_iterations=10, max_tokens=4096)

@@ -6,7 +6,12 @@ from dotenv import load_dotenv
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-def executer_sous_agent(nom_agent: str, instructions_systeme: str, outils_disponibles: dict, schema: list, instruction: str, max_iterations: int = 5) -> str:
+def executer_sous_agent(nom_agent: str, instructions_systeme: str, outils_disponibles: dict, schema: list, instruction: str, max_iterations: int = 5, max_tokens: int = 1024) -> str:
+    if "demander_a_un_agent" in outils_disponibles:
+        instructions_systeme += (
+            "\n\nSi une partie de la tâche sort de ton domaine, utilise l'outil demander_a_un_agent "
+            "pour solliciter l'agent spécialisé plutôt que de deviner ou de refuser."
+        )
     messages = [
         {"role": "system", "content": instructions_systeme},
         {"role": "user", "content": instruction}
@@ -17,7 +22,7 @@ def executer_sous_agent(nom_agent: str, instructions_systeme: str, outils_dispon
             model="openai/gpt-oss-120b",
             messages=messages,
             tools=schema,
-            max_tokens=1024
+            max_tokens=max_tokens
         )
         message = reponse.choices[0].message
         messages.append(message)

@@ -1,3 +1,4 @@
+from collaboration import suivre_agent, creer_outil_collaboration, schema_collaboration
 from groq import Groq
 import os
 import json
@@ -122,6 +123,10 @@ SCHEMA_GRIO = [
     },
 ]
 
+OUTILS_GRIO["demander_a_un_agent"] = creer_outil_collaboration("Grio")
+SCHEMA_GRIO.append(schema_collaboration("Grio"))
+
+@suivre_agent("Grio")
 
 
 def charger_lecons() -> str:
@@ -191,7 +196,10 @@ def resoudre_mathematiques(instruction: str) -> str:
     )
     if lecons:
         instructions_systeme += f"\n\n{lecons}"
-
+    instructions_systeme += (
+        "\n\nSi une partie de la tâche sort de ton domaine, utilise l'outil demander_a_un_agent "
+        "pour solliciter l'agent spécialisé plutôt que de deviner ou de refuser."
+    )
     messages = [
         {"role": "system", "content": instructions_systeme},
         {"role": "user", "content": instruction}

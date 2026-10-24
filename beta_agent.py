@@ -1,3 +1,4 @@
+from collaboration import suivre_agent, creer_outil_collaboration, schema_collaboration
 from outils import lire_fichier, ecrire_fichier, lister_fichiers, compter_mots, ouvrir_explorateur, rechercher_fichiers
 from sous_agent_commun import executer_sous_agent
 
@@ -18,6 +19,10 @@ SCHEMA_BETA = [
     {"type": "function", "function": {"name": "ouvrir_explorateur", "description": "Ouvre l'Explorateur de fichiers Windows sur un dossier, ou sélectionne un fichier, sur l'écran de Monsieur", "parameters": {"type": "object", "properties": {"chemin": {"type": "string"}}, "required": ["chemin"]}}},
     {"type": "function", "function": {"name": "rechercher_fichiers", "description": "Cherche des fichiers par nom sur le PC (par défaut dans le dossier personnel de Monsieur)", "parameters": {"type": "object", "properties": {"motif": {"type": "string", "description": "Partie du nom du fichier"}, "dossier": {"type": "string", "description": "Dossier de départ, optionnel"}}, "required": ["motif"]}}},
 ]
+OUTILS_BETA["demander_a_un_agent"] = creer_outil_collaboration("Beta")
+SCHEMA_BETA.append(schema_collaboration("Beta"))
+
+@suivre_agent("Beta")
 
 def gerer_fichiers(instruction: str) -> str:
     instructions_systeme = "Tu es Beta, un agent spécialisé dans la gestion de fichiers : lecture, écriture, listage et comptage de mots. Utilise les outils disponibles pour accomplir précisément la demande, puis donne une réponse claire et synthétique."

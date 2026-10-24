@@ -16,7 +16,8 @@ from wispr import micro_wispr
 
 from agents_multiples import lancer_equipe
 from main import client, lancer_agent
-
+from bast_agent import demarrer_surveillance
+demarrer_surveillance()
 # ----------------------------------------------------------------------
 # Constantes
 # ----------------------------------------------------------------------
@@ -36,6 +37,7 @@ AGENTS = [
     ("Δδ", "Delta, assistant révisions, actif"),
     ("Γγ", "Gamma, assistant agenda et météo, actif"),
     ("Λλ", "Lambda, assistant documents, actif"),
+    ("bast", "Bast, sécurisé et protection, actif"),
 ]
 
 
@@ -59,6 +61,7 @@ def date_francaise():
 carte_monde_b64 = charger_image_base64("carte_monde.png")
 logo_b64 = charger_image_base64("logo.png")
 logo_grio_b64 = charger_image_base64("grio_logo.png")
+logo_bast_b64 = charger_image_base64("bast_logo.png")
 
 st.set_page_config(
     page_title="Christiane",
@@ -576,7 +579,10 @@ if "conversations" not in st.session_state:
     st.session_state.conversations = charger_conversations()
     st.session_state.conv_id = None
 
-
+# Chargement des skills disponibles
+skills_disponibles = []
+if os.path.exists("skills"):
+    skills_disponibles = [f.replace(".txt", "") for f in os.listdir("skills") if f.endswith(".txt")]
 def detecter_skill(objectif_utilisateur):
     if not skills_disponibles:
         return ""
@@ -729,16 +735,18 @@ else:
     )
 
     badges = []
-    for symbole, texte in AGENTS:
-        if symbole == "grio":
-            if logo_grio_b64:
-                icone = f"<img src='data:image/png;base64,{logo_grio_b64}' width='24'>"
-            else:
-                icone = "<span class='lettre-agent'>Γρ</span>"
-        else:
-            icone = f"<span class='lettre-agent'>{symbole}</span>"
-        badges.append(f"<div class='badge-agent'>{icone} {texte}</div>")
-
+for symbole, texte in AGENTS:
+    if symbole == "grio" and logo_grio_b64:
+        icone = f"<img src='data:image/png;base64,{logo_grio_b64}' width='24'>"
+    elif symbole == "bast" and logo_bast_b64:
+        icone = f"<img src='data:image/png;base64,{logo_bast_b64}' width='24'>"
+    elif symbole == "grio":
+        icone = "<span class='lettre-agent'>Γρ</span>"
+    elif symbole == "bast":
+        icone = "<span class='lettre-agent'>🛡️</span>"
+    else:
+        icone = f"<span class='lettre-agent'>{symbole}</span>"
+    badges.append(f"<div class='badge-agent'>{icone} {texte}</div>")
     st.markdown(
         "<div class='hero-accueil'>"
         f"{logo_hero}"

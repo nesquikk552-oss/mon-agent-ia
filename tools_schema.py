@@ -249,13 +249,15 @@ TOOLS_SCHEMA = [
         "type": "function",
         "function": {
             "name": "rechercher_avec_alpha",
-            "description": "Délègue une recherche approfondie à Alpha, un agent de recherche spécialisé qui explore le web et renvoie une synthèse claire et sourcée. À utiliser de préférence à rechercher_web pour les questions qui demandent une vraie synthèse (sujets complexes, comparaisons, questions d'actualité détaillées) plutôt qu'un simple résultat brut.",
+            "description": "Délègue une recherche approfondie à Alpha, un agent de recherche spécialisé qui explore le web et renvoie une synthèse claire et sourcée. À utiliser de préférence à rechercher_web pour les questions qui demandent une vraie synthèse (sujets complexes, comparaisons, questions d'actualité détaillées) plutôt qu'un simple résultat brut,Alpha peut aussi ouvrir le navigateur de Monsieur, lire plusieurs pages web et confier ses trouvailles à Lambda pour les ranger dans un document Word,.",
             "parameters": {
                 "type": "object",
                 "properties": {"question": {"type": "string"}},
                 "required": ["question"]
+
             }
         }
+   
     }
     ,{
         "type": "function",

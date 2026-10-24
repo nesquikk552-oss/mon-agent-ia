@@ -1,3 +1,4 @@
+from collaboration import suivre_agent, creer_outil_collaboration, schema_collaboration
 from outils import obtenir_date_heure_fuseau, obtenir_meteo, ajouter_evenement, lister_evenements, supprimer_evenement
 from sous_agent_commun import executer_sous_agent
 
@@ -16,6 +17,10 @@ SCHEMA_GAMMA = [
     {"type": "function", "function": {"name": "lister_evenements", "description": "Liste tous les événements de l'agenda", "parameters": {"type": "object", "properties": {}, "required": []}}},
     {"type": "function", "function": {"name": "supprimer_evenement", "description": "Supprime un événement de l'agenda par son titre", "parameters": {"type": "object", "properties": {"titre": {"type": "string"}}, "required": ["titre"]}}},
 ]
+OUTILS_GAMMA["demander_a_un_agent"] = creer_outil_collaboration("Gamma")
+SCHEMA_GAMMA.append(schema_collaboration("Gamma"))
+
+@suivre_agent("Gamma")
 
 def gerer_agenda_temps(instruction: str) -> str:
     instructions_systeme = "Tu es Gamma, un agent spécialisé dans la gestion de l'agenda, de la date et de l'heure dans n'importe quel fuseau horaire, et de la météo n'importe où dans le monde. Utilise les outils disponibles pour accomplir précisément la demande, puis donne une réponse claire et synthétique."
